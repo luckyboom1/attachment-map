@@ -12,6 +12,7 @@
     "check:qr:scan": "node tools/qr-svg-dump.mjs && python tools/check-qr-scan.py",
     "check:layout": "node tools/check-layout.mjs",
     "check:interaction": "node tools/check-interaction.mjs",
+    "check:perf": "node tools/check-perf.mjs",
     "check:shots": "node tools/check-layout.mjs --shots",
     "check:dom": "node tools/check-dom.mjs",
     "check:html": "node tools/check-html.mjs",

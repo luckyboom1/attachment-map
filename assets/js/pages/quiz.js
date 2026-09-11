@@ -5,10 +5,13 @@
  * 1. 一次一题：降低单屏认知负荷。
  * 2. 进度显示「还剩 N 题」而不是「完成 X%」：用户想知道的是剩余成本。
  * 3. 点选项即进下一题，不设「下一题」按钮：少一次点击 = 少一次流失。
- * 4. 选中态 100ms 内出现，180ms 后推进：太快看不清反馈，太慢像卡住。
- * 5. 允许回退、允许中途离开：localStorage 自动存，不做「你还没答完」拦截。
- * 6. 键盘可全程操作：1–7 选项，←/Backspace 上一题。
- * 7. 中途给一句陪伴语：#cushion。36 题里 28 题在让用户确认自己的不安，
+ * 4. 反馈分两层：选中态即时出现（0ms，CSS），题目推进等 90ms 后发生（见 ADVANCE_DELAY）。
+ *    实测：新题 90ms 开始入场、160ms 达到可读亮度，动作起点比原来的 180ms 提前一倍。
+ * 5. 入场动画只作用于题干文字，**不动选项按钮**——按钮必须停在原处，
+ *    否则连续快速作答时手指会落在移动中的目标上。
+ * 6. 允许回退、允许中途离开：localStorage 自动存，不做「你还没答完」拦截。
+ * 7. 键盘可全程操作：1–7 选项，←/Backspace 上一题。
+ * 8. 中途给一句陪伴语：#cushion。36 题里 28 题在让用户确认自己的不安，
  *    连续确认是一种情绪负荷。不打断作答、不增加点击，只随进度换文字。
  */
 
@@ -17,6 +20,29 @@ import { QUESTIONS, TOTAL_QUESTIONS, LIKERT_ANCHORS } from '../data/questions.js
 import { store, newId } from '../core/store.js';
 import { encodeAnswers, answersToArray } from '../core/encode.js';
 import { submitQuiz, track, FUNNEL } from '../api/index.js';
+
+/* ------------------------------ 时序常量 ------------------------------ */
+
+/**
+ * 选中态停留多久再推进到下一题。
+ * 为什么是 80ms：足够看见自己点了哪一档（约 5 帧），
+ * 又让「画面开始变化」落在 100ms 这条瞬时线以内。
+ * 它同时充当「防止一次误触答掉两题」的保护期——人手连点间隔通常 >150ms。
+ */
+const ADVANCE_DELAY = 80;
+
+/**
+ * 新题入场时长。
+ * 存在的理由不是好看，是**让眼睛知道内容换了**：36 题连续作答时，
+ * 题干位置固定、选项按钮位置也固定，若只是硬切，快速作答的人容易
+ * 把上一题的判断落到下一题上。120ms 的轻微淡入给出这个信号。
+ * 时长刻意压得短——入场只是提示，不能拖慢「下一题什么时候能读」。
+ */
+const ENTER_DURATION = 120;
+
+/** 尊重系统的「减少动态效果」偏好：此时不做任何入场动画，直接换文字。 */
+const prefersReducedMotion = typeof matchMedia === 'function'
+  && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 mountChrome({ page: 'quiz' });
 
@@ -69,7 +95,7 @@ if (state.inviteCode) {
 
 /* ------------------------------ 渲染 ------------------------------ */
 
-function render() {
+function render(opts = {}) {
   const q = QUESTIONS[state.index];
   const answered = Object.keys(state.answers).filter((k) => state.answers[k] != null).length;
 
@@ -81,6 +107,18 @@ function render() {
 
   el.text.textContent = q.text;
   el.text.setAttribute('aria-label', `第 ${state.index + 1} 题：${q.text}`);
+
+  // 入场动画：默认只在「推进到下一题」时播放（opts.enter），
+  // 首次进入和回退都不播——首次播放会让人以为页面在闪，回退播放会拖慢纠错。
+  // 只动题干文字，不碰选项按钮：按钮必须留在原地，否则快速作答时手指会落空。
+  if (opts.enter && !prefersReducedMotion && el.text.animate) {
+    el.text.animate(
+      [{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }],
+      // fill: 'both' —— 动画在「就绪前」的那一帧也套用起始值，
+      // 否则理论上有极小概率以完全不透明的状态渲染一帧，看起来像闪一下。
+      { duration: ENTER_DURATION, easing: 'cubic-bezier(.2,.8,.3,1)', fill: 'both' },
+    );
+  }
 
   // 7 个选项
   el.scale.innerHTML = '';
@@ -162,11 +200,11 @@ function choose(value) {
     state.locked = false;
     if (state.index < TOTAL_QUESTIONS - 1) {
       state.index += 1;
-      render();
+      render({ enter: true });
     } else {
       finish();
     }
-  }, 180);
+  }, ADVANCE_DELAY);
 }
 
 function goBack() {

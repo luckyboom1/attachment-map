@@ -15,6 +15,18 @@ img, svg { display: block; max-width: 100%; }
 button, input, select, textarea { font: inherit; color: inherit; }
 button { background: none; border: none; cursor: pointer; }
 a { color: inherit; text-decoration: none; }
+
+/* --- 触屏基础设定（只改触感，不改变视觉） ---
+   1. touch-action: manipulation —— 关掉「双击缩放」判定。答题时用户会在同一位置
+      连续快速点选相邻两题，浏览器原本可能把它识别成双击缩放，导致页面在答题中途被放大。
+   2. -webkit-tap-highlight-color —— 去掉系统默认的灰色点击闪块。我们已有 :active
+      与选中态两层自带反馈，再叠一层系统闪块，视觉上像闪屏。
+   3. click 之后不残留 :hover 位移 —— 见下方各处的 @media (hover: hover) 包裹：
+      触屏上 :hover 会「粘住」，点完按钮停在偏移位置，看起来像没回弹。 */
+button, a, .btn, .likert__btn, .choice, input {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
 table { border-collapse: collapse; width: 100%; }
 
 /* ============================ 2. Base ============================ */
@@ -119,8 +131,11 @@ code {
   font-size: var(--t-sm); font-weight: var(--w-bold);
   padding: 5px var(--s3);
   border: var(--bw-thin) solid transparent;
+  transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease);
 }
-.site-nav a:hover { border-color: var(--line); background: var(--yellow); }
+@media (hover: hover) {
+  .site-nav a:hover { border-color: var(--line); background: var(--yellow); }
+}
 .site-nav a[aria-current="page"] { border-color: var(--line); background: var(--surface-alt); }
 
 .site-footer {
@@ -162,7 +177,10 @@ code {
   transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease), background var(--dur) var(--ease);
   text-align: center;
 }
-.btn:hover { transform: translate(3px, 3px); box-shadow: var(--sh-hover); }
+/* hover 只在有真实指针的设备上生效（见文件顶部的触屏基础设定说明） */
+@media (hover: hover) {
+  .btn:hover { transform: translate(3px, 3px); box-shadow: var(--sh-hover); }
+}
 .btn:active { transform: translate(6px, 6px); box-shadow: var(--sh-press); }
 /* 禁用态必须把硬阴影收掉。这个风格里阴影就是「可按」的语义——
    只把背景调灰、保留 6px 阴影，按钮看起来照样能点，点了没反应。
@@ -181,7 +199,9 @@ code {
 .btn--pink  { --btn-bg: var(--pink); }
 .btn--purple{ --btn-bg: var(--purple); }
 .btn--ghost { --btn-bg: transparent; box-shadow: none; }
-.btn--ghost:hover { background: var(--surface-alt); transform: translate(2px, 2px); box-shadow: var(--sh-up); }
+@media (hover: hover) {
+  .btn--ghost:hover { background: var(--surface-alt); transform: translate(2px, 2px); box-shadow: var(--sh-up); }
+}
 
 .btn-group { display: flex; flex-wrap: wrap; gap: var(--s4); }
 
@@ -255,12 +275,17 @@ code {
 .input[aria-invalid="true"] { border-color: var(--red); box-shadow: 3px 3px 0 var(--red); }
 
 /* --- 5.5 进度条 --- */
+/* contain：把这一条进度条的变化限制在自身，不让它触发外部元素的重排。
+   这里刻意保留 width 动画而不是换成 transform: scaleX()——因为填充块右侧有 3px 描边，
+   scaleX 会把描边一起压扁：进度 3% 时描边只剩 0.09px，那道黑边就消失了，
+   而这道黑边是这套视觉语言的一部分。用 contain 隔离开销，比牺牲外观划算。 */
 .progress {
   height: 20px;
   background: var(--surface);
   border: var(--bw) solid var(--line);
   box-shadow: var(--sh-up);
   overflow: hidden;
+  contain: layout paint;
 }
 .progress__bar {
   height: 100%;
@@ -288,7 +313,12 @@ code {
   font-weight: var(--w-black);
   transition: transform var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease);
 }
-.likert__btn:hover { background: var(--paper-2); transform: translate(-1px, -1px); box-shadow: var(--sh-hover); }
+@media (hover: hover) {
+  .likert__btn:hover { background: var(--paper-2); transform: translate(-1px, -1px); box-shadow: var(--sh-hover); }
+}
+/* 按下即反馈：不等浏览器判定完点击类型。触屏上没有 :hover 的预热，
+   :active 是唯一能在手指接触瞬间给出回应的状态。 */
+.likert__btn:active { background: var(--yellow); box-shadow: var(--sh-press); transform: translate(3px, 3px); }
 .likert__btn[aria-pressed="true"] {
   background: var(--yellow);
   transform: translate(3px, 3px);
@@ -319,7 +349,9 @@ code {
   font-size: var(--t-sm); font-weight: var(--w-med);
   transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease), background var(--dur) var(--ease);
 }
-.choice:hover { transform: translate(2px, 2px); box-shadow: var(--sh-press); background: var(--paper-2); }
+@media (hover: hover) {
+  .choice:hover { transform: translate(2px, 2px); box-shadow: var(--sh-press); background: var(--paper-2); }
+}
 
 /* --- 5.8 数据展示 --- */
 .stat {
