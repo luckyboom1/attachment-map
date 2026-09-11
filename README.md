@@ -2,7 +2,13 @@
 
 基于成人依恋理论的双维度测试站。**零依赖、零构建步骤、零后端**——把目录拖到任何静态托管上就能跑。
 
-**线上地址**：<https://luckyboom1.github.io/attachment-map/>（GitHub Pages 项目站点，公开仓库）
+**线上地址**
+
+- Cloudflare Pages（主）：**<https://attachment-map.pages.dev/>**
+- GitHub Pages（备）：**<https://luckyboom1.github.io/attachment-map/>**
+
+> GitHub Pages 条款不允许以促成交易为主要目的的站点，接入付费前应迁至 Cloudflare Pages（后者无此限制）。
+> 两者都为公开仓库/公开站点；作答只存于用户浏览器本地，仓库内无任何用户数据。
 
 ---
 
@@ -291,10 +297,12 @@ npm run qr:reference
 
 | 平台 | 做法 |
 |---|---|
+| Cloudflare Pages（已部署） | **Direct Upload**：`npx wrangler pages deploy . --project-name=attachment-map --branch=main`。项目已存在，更新只需重跑这一条 |
 | GitHub Pages（项目站点） | 仓库推送后在 Settings → Pages 选分支即可，地址为 `<用户名>.github.io/<仓库名>/` |
-| Cloudflare Pages | 直接连仓库，构建命令留空，输出目录填 `/` |
 | Vercel | 框架选 Other，构建命令留空 |
 | 任意虚拟主机 | 用 FTP 把整个目录传上去 |
+
+> **不要用 Git 集成接到 Cloudflare Workers 构建流程**：那是给 Worker 项目用的，默认部署命令 `npx wrangler deploy` 在没有 wrangler 配置的纯静态仓库上会以 "error occurred while running deploy command" 失败。静态站用 Pages 项目 + Direct Upload，或 Pages 项目 + 构建命令留空 + 输出目录 `.`。
 
 ### GitHub Pages 三件必须知道的事
 
