@@ -49,7 +49,10 @@ mountChrome({ page: 'quiz' });
 /* ------------------------------ 状态 ------------------------------ */
 
 const params = new URLSearchParams(location.search);
-const incomingInvite = params.get('a');           // 对方是发起方，我是被邀请方
+// 邀请编码放在 URL 片段里（#a=…），片段不会随请求发往服务器。
+// 同时兼容旧链接的查询串形式（?a=…）。
+const hashParams = new URLSearchParams(String(location.hash || '').replace(/^#/, ''));
+const incomingInvite = hashParams.get('a') || params.get('a');   // 对方是发起方，我是被邀请方
 const isResume = params.get('resume') === '1';
 
 const state = {
@@ -244,7 +247,9 @@ async function finish() {
     if (state.inviteCode) {
       // 我是被邀请方：把双方答案拼进链接，一起看合盘
       const myCode = encodeAnswers(arr);
-      location.replace(`duo.html?a=${encodeURIComponent(state.inviteCode)}&b=${encodeURIComponent(myCode)}`);
+      // 双方答案都放进 URL 片段：片段不会随请求发往服务器（见 core/encode.js 的说明）。
+      // 若写进查询串，答案会进入托管方访问日志，并被 Referer 带给第三方。
+      location.replace(`duo.html#a=${encodeURIComponent(state.inviteCode)}&b=${encodeURIComponent(myCode)}`);
     } else {
       location.replace(`result.html?r=${encodeURIComponent(res.resultId)}`);
     }

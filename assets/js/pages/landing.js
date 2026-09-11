@@ -60,8 +60,11 @@ function handleInvite(raw) {
   }
   inviteInput.removeAttribute('aria-invalid');
 
-  // 容忍用户只粘了?后面的部分，或整段文案里夹着链接
-  const match = value.match(/[?&]a=([A-Za-z0-9\-_]+)/);
+  // 容忍用户只粘了参数部分，或整段文案里夹着链接。
+  // 分隔符必须同时接受 # / ? / &：答案现在放在 URL 片段（#a=…）里，
+  // 片段不会随请求发往服务器，也就不会进入托管方日志与 Referer（见 core/encode.js）。
+  // 只认 [?&] 会让新格式的链接全部判定为「不完整」。
+  const match = value.match(/[#?&]a=([A-Za-z0-9\-_]+)/);
   const code = match ? match[1] : null;
   const decoded = decodeAnswers(code);
 
@@ -72,7 +75,8 @@ function handleInvite(raw) {
   }
 
   track(FUNNEL.inviteAccepted, { source: 'landing_input' });
-  location.href = `quiz.html?a=${encodeURIComponent(code)}`;
+  // 同样用片段传递编码，避免答案出现在请求行里
+  location.href = `quiz.html#a=${encodeURIComponent(code)}`;
 }
 
 /* -------------------- 免费模式的如实告知 -------------------- */
@@ -88,7 +92,10 @@ if (CONFIG.freeMode) {
     '<a href="about.html">了解算法与常模 →</a>';
 }
 
-/* -------------------- 如果 URL 直接带了 b=（合盘完成） -------------------- */
+/* -------------------- 如果 URL 直接带了双方答案（合盘完成） -------------------- */
+// 编码在 URL 片段里（#a=…&b=…），转发时片段必须一并带上——片段不会被发往服务器。
 if (param('a') && param('b')) {
-  location.replace(`duo.html${location.search}`);
+  location.replace(`duo.html${location.search}${location.hash}`);
+} else if (location.hash.includes('a=') && location.hash.includes('b=')) {
+  location.replace(`duo.html${location.hash}`);
 }

@@ -1,0 +1,70 @@
+# Cloudflare Pages 响应头配置
+# ===========================================================================
+# 放置位置：发布目录根（本项目即仓库根）。
+# Cloudflare Pages 会把它翻译成真实响应头；其他静态托管若支持同等机制，
+# 可把同样内容迁过去。本地 dev-server 不读这个文件，所以开发时的行为可能
+# 与线上不同——安全头的验证必须打线上，不能用 localhost 的结果代替。
+#
+# 各条存在的理由都写在下面。删任何一条之前请先读它的说明。
+# ===========================================================================
+
+/*
+  # ---------- 最关键的一条 ----------
+  # 本项目的合盘链接里带两个人的测评答案。实测确认：页面加载时浏览器会把这个
+  # 完整 URL 放进 Referer 请求头发给所有被请求的资源——包括 Cloudflare 自己的
+  # RUM 上报端点。也就是说答案会以请求头的形式离开浏览器。
+  # no-referrer 让浏览器在任何情况下都不发送 Referer，从源头切断这条路径。
+  # （答案本身已改为放在 URL 片段里，片段协议上就不会被发送；这里是第二道防线，
+  #   同时覆盖答案以外的路径信息。）
+  Referrer-Policy: no-referrer
+
+  # ---------- 内容安全策略 ----------
+  # script-src 里没有 'unsafe-inline'：全站唯一的内联脚本是各页 head 里的
+  # 主题引导脚本，用它的 sha256 哈希授权。这样即便攻击者能在页面里插入标记，
+  # 也无法执行脚本。
+  #
+  # ⚠️ 维护提示：若修改了任一 HTML 里的那段内联脚本，此哈希必须同步更新，
+  #    否则主题引导会被浏览器拦截（表现为「刷新后主题闪一下」或直接不生效）。
+  #    tools/security-check.mjs 会自动校验哈希是否与 HTML 一致，请保持它在检查里跑。
+  #
+  # style-src 保留了 'unsafe-inline'：页面里仍有若干行内 style 属性
+  # （表格列宽、单次元素的宽度等结构性取值）。样式注入的危害远低于脚本注入，
+  # 且移除这些行内样式需要为每个位置建类，收益不成比例。这是有意识的取舍。
+  Content-Security-Policy: default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self' 'sha256-LyXO26JZgW+aoP0nmnl5q/SfMONI7ANYTgBEtdCtciE=' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' https://cloudflareinsights.com https://static.cloudflareinsights.com; media-src 'self' blob:; worker-src 'none'; manifest-src 'self'; upgrade-insecure-requests
+
+  # 阻止 MIME 嗅探：避免把非脚本内容当成脚本执行
+  X-Content-Type-Options: nosniff
+
+  # 禁止被任何页面用 iframe 嵌入。
+  # 与上面的 frame-ancestors 'none' 重复是刻意的：X-Frame-Options 覆盖老浏览器，
+  # frame-ancestors 是新标准，两者都要有才能真正挡住点击劫持。
+  X-Frame-Options: DENY
+
+  # 关闭一切用不到的浏览器能力。这些能力一旦被第三方脚本利用，
+  # 就可以在用户无感的情况下读取环境信息或触发支付。
+  # clipboard-write 必须保留给本站：结果页的「复制链接」「复制全文」依赖它。
+  Permissions-Policy: accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=(), serial=(), midi=(), idle-detection=(), screen-wake-lock=(), clipboard-read=(), clipboard-write=(self)
+
+  # 跨域隔离：本页不加载任何需要跨域凭据的资源，
+  # 显式声明可以避免被其他源当成可共享的上下文。
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Resource-Policy: same-origin
+
+  # HSTS：强制后续访问走 HTTPS（Cloudflare 已在边缘提供 HTTPS，
+  # 这条是为了防止首次访问之后的降级劫持）。
+  # 未加 preload，避免把决定权交给浏览器预置列表。
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+
+# ---------- 静态资源：长缓存 + 内容指纹由 ETag 保证 ----------
+# HTML 不在此列，保持 must-revalidate，避免用户拿到旧页面引用已删除的资源。
+/assets/*
+  Cache-Control: public, max-age=604800
+
+# ---------- 敏感文件：即使被上传也不要对外提供 ----------
+# 开发与构建产物不属于站点内容，万一被误提交也应当 404。
+/tools/*
+  X-Robots-Tag: noindex
+/server/*
+  X-Robots-Tag: noindex
+/.git/*
+  X-Robots-Tag: noindex

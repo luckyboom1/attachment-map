@@ -19,11 +19,21 @@
     "check:dom": "node tools/check-dom.mjs",
     "check:html": "node tools/check-html.mjs",
     "check": "node tools/selftest.mjs && node tools/check-html.mjs && node tools/check-dom.mjs && node tools/check-qr.mjs",
-    "qr:reference": "python tools/qr-reference-gen.py"
+    "qr:reference": "python tools/qr-reference-gen.py",
+    "check:security": "node tools/security-check.mjs",
+    "check:duoflow": "node tools/security-duoflow.mjs",
+    "check:xss": "node tools/security-xss-probe.mjs",
+    "check:exfil": "node tools/security-exfil-probe.mjs"
   },
   "engines": {
     "node": ">=18"
   },
-  "keywords": ["attachment", "ecr-r", "quiz", "neubrutalism", "zero-backend"],
+  "keywords": [
+    "attachment",
+    "ecr-r",
+    "quiz",
+    "neubrutalism",
+    "zero-backend"
+  ],
   "license": "UNLICENSED"
 }

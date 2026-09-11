@@ -47,9 +47,23 @@ const MIME = {
   '.woff2': 'font/woff2',
 };
 
-/** 防目录穿越：解析后的绝对路径必须仍在 ROOT 之内 */
+/**
+ * 防目录穿越：解析后的绝对路径必须仍在 ROOT 之内。
+ *
+ * 安全性说明（2026-09-12 加固）：原实现直接调用 decodeURIComponent，
+ * 遇到畸形百分号编码（如 `/%ZZ`、`/%E0%A4%A`）会抛 URIError。
+ * 该异常发生在请求处理链上且未被捕获，会**直接终止整个 Node 进程**——
+ * 也就是说，一个精心构造的 URL 就能远程打掉这个服务。
+ * 现在改为：解码失败一律视为非法路径（返回 403），并额外拒绝空字节。
+ */
 function safeJoin(root, urlPath) {
-  const decoded = decodeURIComponent(urlPath.split('?')[0].split('#')[0]);
+  let decoded;
+  try {
+    decoded = decodeURIComponent(urlPath.split('?')[0].split('#')[0]);
+  } catch {
+    return null;                       // 畸形编码 = 非法路径，不抛异常
+  }
+  if (decoded.includes('\0')) return null;   // 空字节截断
   const target = resolve(join(root, normalize(decoded)));
   if (target !== root && !target.startsWith(root + sep)) return null;
   return target;
@@ -169,22 +183,52 @@ async function handleApi(req, res, pathname) {
 
 /* ------------------------------- 启动 ------------------------------- */
 
+/**
+ * 请求入口。
+ * 整体包一层 try/catch：任何未预期异常都只影响当前这一个请求，
+ * 不再有机会终止进程（`new URL(req.url, ...)` 对畸形输入同样会抛）。
+ */
 const server = createServer(async (req, res) => {
-  const pathname = new URL(req.url, 'http://localhost').pathname;
-
-  if (pathname.startsWith('/api/')) {
-    if (!ENABLE_API) {
-      return json(res, 501, {
-        message: '本地模式未启用 API 桩。需要验证时用：node server/dev-server.js --api',
-        code: 'NOT_IMPLEMENTED',
-      });
+  try {
+    let pathname;
+    try {
+      pathname = new URL(req.url, 'http://localhost').pathname;
+    } catch {
+      return send(res, 400, '请求地址无法解析');
     }
-    try { return await handleApi(req, res, pathname); }
-    catch (e) { return json(res, 500, { message: String(e?.message || e) }); }
-  }
 
-  return serveStatic(req, res);
+    if (pathname.startsWith('/api/')) {
+      if (!ENABLE_API) {
+        return json(res, 501, {
+          message: '本地模式未启用 API 桩。需要验证时用：node server/dev-server.js --api',
+          code: 'NOT_IMPLEMENTED',
+        });
+      }
+      try { return await handleApi(req, res, pathname); }
+      catch (e) { return json(res, 500, { message: String(e?.message || e) }); }
+    }
+
+    return await serveStatic(req, res);
+  } catch (err) {
+    // 兜底：日志留在服务端，响应只给通用信息，不回显内部细节
+    console.error('  [error] 请求处理失败：', err?.message || err);
+    if (!res.headersSent) return send(res, 500, '服务内部错误');
+    try { res.end(); } catch { /* ignore */ }
+  }
 });
+
+/**
+ * 客户端错误（畸形 HTTP 报文、请求头超长等）默认会销毁 socket；
+ * 这里显式兜住，避免 Node 打印堆栈或进程退出。
+ */
+server.on('clientError', (err, socket) => {
+  if (socket.writable) socket.end('HTTP/1.1 400 Bad Request\r\n\r\n');
+  else socket.destroy();
+});
+
+/** 单次请求最长处理时间，防止慢速请求长期占用连接 */
+server.requestTimeout = 30000;
+server.headersTimeout = 20000;
 
 server.listen(PORT, '127.0.0.1', () => {
   const base = `http://127.0.0.1:${PORT}`;

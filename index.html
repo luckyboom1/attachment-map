@@ -9,7 +9,6 @@
 <link rel="stylesheet" href="assets/css/tokens.css">
 <link rel="stylesheet" href="assets/css/app.css">
 <script>
-  // 在样式绘制前定好主题，避免闪白
   try {
     var t = JSON.parse(localStorage.getItem('am:theme'));
     if (t === 'dark' || t === 'light') document.documentElement.dataset.theme = t;

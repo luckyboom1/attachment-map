@@ -5,7 +5,7 @@
  * 本页不做任何动画等待，拿到数据立刻渲染。
  */
 
-import { mountChrome, $, h, richText, toast, copyText, downloadFile } from '../ui/ui.js';
+import { mountChrome, $, h, richText, toast, copyText, downloadFile, escapeHtml } from '../ui/ui.js';
 import { store } from '../core/store.js';
 import { getType } from '../core/types.js';
 import { CONFIG, fetchReport, ApiError, track } from '../api/index.js';
@@ -57,7 +57,7 @@ function render(report) {
   main.innerHTML = `
     <section class="section wrap wrap--narrow">
       <div class="row row--between no-print">
-        <a class="btn btn--ghost btn--sm" href="${isDuo ? `duo.html${location.search.replace(/^[?]/, '?')}` : `result.html?r=${encodeURIComponent(resultId)}`}">← 返回结果</a>
+        <a class="btn btn--ghost btn--sm" href="${isDuo ? `duo.html${location.hash}` : `result.html?r=${encodeURIComponent(resultId)}`}">← 返回结果</a>
         <div class="row row--xs">
           <button class="btn btn--sm btn--white" id="btn-copy-report" type="button">复制全文</button>
           <button class="btn btn--sm btn--white" id="btn-print" type="button">打印 / 存 PDF</button>
@@ -80,7 +80,7 @@ function render(report) {
       <hr class="divider">
       <div class="card card--paper2">
         <h3>关于这份报告</h3>
-        <p class="mt-3 t-sm muted">${report.disclaimer}</p>
+        <p class="mt-3 t-sm muted">${escapeHtml(report.disclaimer)}</p>
         <p class="mt-3 tiny">
           生成方式：${report.generatedBy === 'template' ? '模板化生成（确定性输出，同一份结果每次打开内容完全一致）' : 'AI 润色'}。
           结果编号 ${resultId}。${CONFIG.freeMode ? '当前为免费体验期，未产生任何费用。' : ''}
@@ -130,11 +130,15 @@ function renderLocked() {
 /* ------------------------------ 异常 ------------------------------ */
 
 function renderError(title, desc) {
+  // title / desc 都可能来自外部（desc 来自 ApiError.message，远程模式下即服务端返回）。
+  // 拼进 innerHTML 前必须转义——否则一个可控的错误文案就是一处 XSS。
+  const safeTitle = escapeHtml(title);
+  const safeDesc = escapeHtml(desc);
   main.innerHTML = `
     <section class="section wrap wrap--narrow">
       <div class="empty">
-        <h1>${title}</h1>
-        <p class="mt-4 muted">${desc}</p>
+        <h1>${safeTitle}</h1>
+        <p class="mt-4 muted">${safeDesc}</p>
         <p class="mt-5"><a class="btn btn--lg" href="index.html">回到首页</a></p>
       </div>
     </section>`;

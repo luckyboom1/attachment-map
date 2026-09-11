@@ -129,7 +129,33 @@ export function isComplete(rawMap) {
   return QUESTIONS.every((q) => rawMap?.[q.id] != null);
 }
 
-/* ------------------------------- URL 组装 ------------------------------- */
+/* ------------------------------- URL 组装 -------------------------------
+ *
+ * 【安全设计：答案为什么放在 URL 片段（#）而不是查询串（?）】
+ *
+ * 2026-09-12 安全审计发现：原先用 ?a=<答案>&b=<答案>，而这些数据会以三种方式
+ * 离开浏览器，直接违背本项目「零泄露风险」的设计承诺：
+ *   1. HTTP 请求行 —— 请求 duo.html 时，查询串整条进入托管方（Cloudflare）的访问日志；
+ *   2. Referer 请求头 —— 页面加载第三方/上报资源时，Referer 会带上完整 URL（实测确认）；
+ *   3. 浏览器历史与书签 —— 明文留存于本机。
+ *
+ * URL 片段（# 之后的部分）在协议层面**永远不会**被发送给服务器：
+ * 浏览器不会把它放进请求行，不会放进 Referer，服务器日志里也不会有。
+ * 因此把答案移到片段，等于从协议层堵死这三条路径——
+ * 这是结构性的，不是靠某个响应头「缓解」。
+ *
+ * 兼容性：读取时先看片段、再回落到查询串，历史链接仍然可用。
+ */
+
+/** 把 {a,b} 之类的键值对编码进片段 */
+function buildHash(pairs) {
+  const sp = new URLSearchParams();
+  for (const [k, v] of Object.entries(pairs)) {
+    if (v != null) sp.set(k, v);
+  }
+  const s = sp.toString();
+  return s ? `#${s}` : '';
+}
 
 /**
  * 生成「邀请另一半」的链接。
@@ -141,8 +167,8 @@ export function isComplete(rawMap) {
 export function buildInviteUrl(baseUrl, aValues) {
   const url = new URL(baseUrl, window.location.href);
   url.search = '';
-  url.searchParams.set('a', encodeAnswers(aValues));
-  return url.toString();
+  url.hash = '';
+  return url.toString() + buildHash({ a: encodeAnswers(aValues) });
 }
 
 /**
@@ -151,18 +177,29 @@ export function buildInviteUrl(baseUrl, aValues) {
 export function buildDuoUrl(baseUrl, aValues, bValues) {
   const url = new URL(baseUrl, window.location.href);
   url.search = '';
-  url.searchParams.set('a', encodeAnswers(aValues));
-  url.searchParams.set('b', encodeAnswers(bValues));
-  return url.toString();
+  url.hash = '';
+  return url.toString() + buildHash({
+    a: encodeAnswers(aValues),
+    b: encodeAnswers(bValues),
+  });
 }
 
-/** 从 URL 读取双方答案 */
-export function readDuoFromUrl(search = window.location.search) {
-  const p = new URLSearchParams(search);
-  const a = decodeAnswers(p.get('a'));
-  const b = decodeAnswers(p.get('b'));
+/**
+ * 从 URL 读取双方答案。
+ * 先读片段（当前方案），再回落到查询串（兼容审计前分享出去的旧链接）。
+ * @param {string} [search]
+ * @param {string} [hash]
+ */
+export function readDuoFromUrl(search = window.location.search, hash = window.location.hash) {
+  const fromHash = new URLSearchParams(String(hash || '').replace(/^#/, ''));
+  const fromSearch = new URLSearchParams(search);
+  const pick = (k) => decodeAnswers(fromHash.get(k) ? fromHash.get(k) : fromSearch.get(k));
+  const a = pick('a');
+  const b = pick('b');
   return { a, b, ready: !!(a && b) };
 }
+
+export { buildHash };
 
 export const ENCODED_LENGTH = { bytes: BYTE_LEN, bits: TOTAL_BITS };
 export { B64_URL_SAFE };

@@ -7,7 +7,7 @@
  */
 
 import { mountChrome, $, h, richText, toast, copyText, setLoading, noteNode, qrFigure } from '../ui/ui.js';
-import { decodeAnswers, arrayToAnswers, encodeAnswers, buildDuoUrl } from '../core/encode.js';
+import { decodeAnswers, arrayToAnswers, encodeAnswers, buildDuoUrl, buildInviteUrl, readDuoFromUrl } from '../core/encode.js';
 import { score } from '../core/scoring.js';
 import { computeDuo } from '../core/duo.js';
 import { getType } from '../core/types.js';
@@ -17,11 +17,9 @@ import { CONFIG, purchase, track, FUNNEL, getEntitlements } from '../api/index.j
 
 mountChrome({ page: 'duo' });
 
-const params = new URLSearchParams(location.search);
-const codeA = params.get('a');
-const codeB = params.get('b');
-const arrA = decodeAnswers(codeA);
-const arrB = decodeAnswers(codeB);
+// 答案从 URL 片段读取（片段不会发给服务器，理由见 core/encode.js 的说明）。
+// readDuoFromUrl 同时兼容旧链接里的查询串形式。
+const { a: arrA, b: arrB } = readDuoFromUrl();
 
 /* ===================== 情况一：对方还没测 ===================== */
 
@@ -38,7 +36,11 @@ if (arrA && !arrB) {
 function renderWaiting(values) {
   track('duo_waiting_view');
 
-  const inviteUrl = buildDuoUrl('duo.html', values, values).split('&b=')[0];
+  // 只带发起方答案的邀请链接。
+  // 原写法是 buildDuoUrl(...).split('&b=')[0] —— 靠字符串切分从「双方链接」里
+  // 截出「单方链接」。这依赖编码格式的巧合，格式一改（比如这次把参数挪到片段）
+  // 就会静默产出错误链接。改用语义正确的 buildInviteUrl。
+  const inviteUrl = buildInviteUrl('duo.html', values);
   const host = $('#main');
 
   host.innerHTML = `
@@ -244,7 +246,7 @@ async function renderDuo(valuesA, valuesB) {
           <h3 class="mt-3">你们的合盘报告已经打开</h3>
         </div>
       </div>
-      <a class="btn btn--lg mt-5" href="report.html?r=${encodeURIComponent(idA)}&partner=${encodeURIComponent(idB)}&mode=duo">
+      <a class="btn btn--lg mt-5" href="report.html?r=${encodeURIComponent(idA)}&partner=${encodeURIComponent(idB)}&mode=duo${location.hash}">
         查看你们的合盘报告 →
       </a>`;
   } else {
@@ -278,7 +280,7 @@ async function renderDuo(valuesA, valuesB) {
       try {
         await purchase('duo', idA);
         track(FUNNEL.paySuccess, { plan: 'duo', amount: CONFIG.freeMode ? 0 : 2990 });
-        location.href = `report.html?r=${encodeURIComponent(idA)}&partner=${encodeURIComponent(idB)}&mode=duo`;
+        location.href = `report.html?r=${encodeURIComponent(idA)}&partner=${encodeURIComponent(idB)}&mode=duo${location.hash}`;
       } catch (err) {
         setLoading(btn, false);
         toast(err?.message || '暂时没能打开，请稍后再试。', 'error');
