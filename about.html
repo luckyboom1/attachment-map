@@ -54,7 +54,7 @@
       36 道题，1–7 分。计分是纯算术，没有大模型参与，也不含任何随机性——
       同一份答案，无论你测多少次，结果完全一致。
     </p>
-    <pre class="card card--flat mt-4" style="overflow-x:auto"><code style="background:none;border:none;font-size:13px">反向题：    x' = 8 - x
+    <pre class="card card--flat mt-4" style="overflow-x:auto"><code style="background:none;border:none;font-size:13px">反向题：    x' = 8 - x        （反着问的题，先把分数倒过来再算）
 焦虑维度分：A = 焦虑 18 题的平均分     // 范围 1–7
 回避维度分：V = 回避 18 题的平均分
 
@@ -74,19 +74,22 @@
     <div class="note note--info mt-4">
       <span class="note__icon" aria-hidden="true">↔</span>
       <div>
-        <strong>为什么判定和百分位用两套参照，而不是一套。</strong>
-        切分点回答「在量表中点之上还是之下」，样本均值回答「相对那批人处在什么位置」——
-        这是两个不同的问题。本站题目是该构念的改写版本，没有自己的实测分布，
-        所以不能把别人样本的均值搬来当自己的切分线：那会得到
-        「百分位 77，却被判为低回避」这种自相矛盾的输出。
-        等本站样本量足够，两个口径会统一到同一样本上（见下方升级路径）。
+        <strong>为什么类型判定和百分位用的是两套参照？</strong>
+        因为它们回答的是两个不同的问题：<strong>类型判定</strong>回答「你的分数过没过线」，用的是量表正中间的 4.0；
+        <strong>百分位</strong>回答「你比多少人高」，用的是上面那批真实大学生的数据。
+        本站的题目是重新写的，没有属于自己的实测分布，所以不能把别人的平均分拿来当自己的分界线——
+        那样会出现「你比 77% 的人高，却被评为低回避」这种自相矛盾的页面。
+        等本站积累到足够多的真实作答，两个口径会统一到同一份数据上。
       </div>
     </div>
     <p class="mt-4">
-      理论来源：Bowlby 的依恋理论 → Hazan &amp; Shaver（1987）将其应用于成人浪漫关系 →
-      Bartholomew &amp; Horowitz（1991）建立四类模型 →
-      Brennan、Clark &amp; Shaver（1998）通过因素分析发现底层的两个正交维度 →
-      Fraley、Waller &amp; Brennan（2000）以项目反应理论重挑题目，形成沿用至今的 ECR-R 结构。
+      这套方法有一个学术脉络，按时间顺序是：
+      Bowlby 提出依恋理论（一个人小时候与照顾者的相处方式，会影响他成年后在亲密关系里的反应）→
+      Hazan &amp; Shaver（1987）第一次把它用到成年人的恋爱关系上 →
+      Bartholomew &amp; Horowitz（1991）把成人依恋分成四种类型 →
+      Brennan、Clark &amp; Shaver（1998）用统计方法发现，几百道题目背后其实只有两个独立的维度 →
+      Fraley、Waller &amp; Brennan（2000）据此重新筛选题目，形成了今天通行的 ECR-R 量表。
+      本站采用的就是「两个维度」这一层：它比四类型更底层，也更稳定。
     </p>
     <p class="tiny mt-3">
       说明：题目文本全部自编，仅沿用「依恋焦虑 / 依恋回避」这两个学术构念。
@@ -181,7 +184,7 @@
         <summary>付费之后会看到什么？免费版少给了什么？</summary>
         <div class="acc__body">
           <p>免费版给你：类型判定、两个维度的分数与百分位、三条你最可能的行为模式。这些已经足够让你了解自己。</p>
-          <p>付费版给的是"怎么办"：你的模式是怎么形成的、压力下会升级成什么样子、你最常踩的三个坑、和不同类型相处时的规律、三个可以立刻开始做的动作、以及把模式往安全侧移动的路径。</p>
+          <p>付费版给的是"怎么办"：你的模式是怎么形成的、压力下会升级成什么样子、最容易反复出现的三个地方、和不同类型相处时的规律、三个可以立刻开始做的动作、以及把模式往安全侧移动的路径。</p>
           <p>如果预算有限，只靠免费版的三个动作去做，也完全有效。付费买的是更细的地图，不是唯一的路。</p>
         </div>
       </details>
@@ -251,8 +254,8 @@
         <table class="mt-4" style="font-size:14px"><tbody>
           <tr><td style="width:46%">切分点（焦虑）</td><td class="mono">${NORMS.cut.anxiety}</td></tr>
           <tr><td>切分点（回避）</td><td class="mono">${NORMS.cut.avoidance}</td></tr>
-          <tr><td>依据</td><td>量表理论中点。中文文献对 ECR 四型的定界惯例是「取两维度均分，以 4 分为界」。</td></tr>
-          <tr><td>为什么不用样本均值</td><td>本站题目是该构念的改写版本，不是 ECR 原题。借用他方样本的均值当切分线，等于假设两者逐题等价。</td></tr>
+          <tr><td>依据</td><td>量表正中间的 4.0。国内文献给 ECR 分四种类型时，惯例就是取两个维度的平均分、以 4 分为界。</td></tr>
+          <tr><td>为什么不用平均分</td><td>本站题目是重新写的，不是 ECR 原题。把别人的平均分拿来当自己的分界线，等于假设两边题目逐题等价。</td></tr>
         </tbody></table>
       </div>
       <div class="card">
@@ -261,13 +264,13 @@
           <tr><td style="width:46%">焦虑 均值 / 标准差</td><td class="mono">${NORMS.anxiety.mean} / ${NORMS.anxiety.sd}</td></tr>
           <tr><td>回避 均值 / 标准差</td><td class="mono">${NORMS.avoidance.mean} / ${NORMS.avoidance.sd}</td></tr>
           <tr><td>参照样本</td><td>${NORMS.referenceShort}</td></tr>
-          <tr><td>百分位含义</td><td>相对该样本的正态近似位置，<strong>不是</strong>本站题目的实测分布。</td></tr>
+          <tr><td>百分位含义</td><td>按正态分布估算的相对位置，<strong>不是</strong>在本站题目上实测出来的排名。</td></tr>
         </tbody></table>
       </div>
     </div>
 
     <h3 class="mt-7">同期中国样本交叉核对</h3>
-    <p class="muted mt-2" style="font-size:14px">列出多个样本而不是一个点估计，是为了让波动范围可见。全部为 36 题 ECR/ECR-R 中文版、7 点计分的维度均分。</p>
+    <p class="muted mt-2" style="font-size:14px">列出多个样本而不是一个数字，是为了让你看到波动范围有多大。下表全部是 36 题 ECR/ECR-R 中文版、7 点计分的维度平均分。</p>
     <table class="mt-4" style="font-size:14px">
       <thead><tr><th>来源</th><th>N</th><th>依恋焦虑</th><th>依恋回避</th><th>备注</th></tr></thead>
       <tbody>${crossRows}</tbody>
