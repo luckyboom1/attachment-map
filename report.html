@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>深度报告 · 依恋地图</title>
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="assets/css/tokens.css">
+<link rel="stylesheet" href="assets/css/app.css">
+<script>
+  try {
+    var t = JSON.parse(localStorage.getItem('am:theme'));
+    if (t === 'dark' || t === 'light') document.documentElement.dataset.theme = t;
+  } catch (e) {}
+</script>
+</head>
+<body>
+
+<main id="main">
+  <section class="section wrap wrap--narrow">
+    <div class="row" style="gap:14px">
+      <span class="spinner" aria-hidden="true"></span>
+      <p class="muted">正在打开报告…</p>
+    </div>
+  </section>
+</main>
+
+<script type="module" src="assets/js/pages/report.js"></script>
+</body>
+</html>

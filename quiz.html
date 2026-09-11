@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>答题中 · 依恋地图</title>
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="assets/css/tokens.css">
+<link rel="stylesheet" href="assets/css/app.css">
+<script>
+  try {
+    var t = JSON.parse(localStorage.getItem('am:theme'));
+    if (t === 'dark' || t === 'light') document.documentElement.dataset.theme = t;
+  } catch (e) {}
+</script>
+</head>
+<body>
+
+<main id="main">
+  <section class="section wrap wrap--narrow">
+
+    <!-- 被邀请方提示 -->
+    <div class="note note--info hide mb-5" id="role-banner">
+      <span class="note__icon" aria-hidden="true">↔</span>
+      <div id="role-text"></div>
+    </div>
+
+    <!-- 陪伴语：36 道题里有 28 道在让用户确认自己「会这样」。
+         连续确认自己的不安本身就是一种情绪负荷，中途需要被承认一次。
+         不设交互、不加点击，只按进度换一句话。 -->
+    <p class="tiny mb-4" id="cushion"></p>
+
+    <!-- 进度：显示剩余成本，而不是完成百分比 -->
+    <div class="row row--between mb-3">
+      <p class="field__label" id="counter" aria-live="polite">第 1 / 36 题</p>
+      <p class="mono" style="font-size:14px;font-weight:800" id="remaining">还剩 36 题</p>
+    </div>
+
+    <div class="progress" role="progressbar" aria-valuemin="0" aria-valuenow="0" aria-valuemax="36"
+         aria-label="答题进度">
+      <div class="progress__bar" id="bar"></div>
+    </div>
+
+    <!-- 题干 -->
+    <div class="card card--lg mt-6">
+      <p class="tiny mb-3">下面这句话，有多符合你？</p>
+      <h1 id="q-text" style="font-size:clamp(20px,3.6vw,28px);line-height:1.4" tabindex="-1"></h1>
+
+      <div class="likert mt-7">
+        <div class="likert__scale" id="scale" role="radiogroup" aria-label="从完全不符合到完全符合，共 7 档"></div>
+        <div class="likert__anchors" id="anchors"></div>
+      </div>
+    </div>
+
+    <!-- 操作 -->
+    <div class="row row--between mt-5">
+      <button class="btn btn--white btn--sm" id="btn-back" type="button">← 上一题</button>
+      <button class="btn btn--ghost btn--sm hide" id="btn-quit" type="button">保存并退出</button>
+    </div>
+
+    <p class="tiny mt-6">
+      键盘可以直接按 <strong>1–7</strong> 选择，<strong>←</strong> 回上一题。
+      中途关闭也不用重答，进度会存在这台设备上。
+    </p>
+
+  </section>
+</main>
+
+<script type="module" src="assets/js/pages/quiz.js"></script>
+</body>
+</html>

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>依恋地图 · 测出你的依恋类型，还能做双人合盘</title>
+<meta name="description" content="基于成人依恋理论的双维度测试。不用登录、不用付费、全程在你的浏览器里计算。测完还能和对方做双人合盘。">
+<meta name="theme-color" content="#FFEB3B">
+<link rel="stylesheet" href="assets/css/tokens.css">
+<link rel="stylesheet" href="assets/css/app.css">
+<script>
+  // 在样式绘制前定好主题，避免闪白
+  try {
+    var t = JSON.parse(localStorage.getItem('am:theme'));
+    if (t === 'dark' || t === 'light') document.documentElement.dataset.theme = t;
+  } catch (e) {}
+</script>
+</head>
+<body>
+
+<main id="main">
+
+  <!-- ============================ 首屏 ============================ -->
+  <section class="section wrap">
+    <div class="grid grid--2" style="align-items:center;gap:48px">
+
+      <div>
+        <p class="tag tag--red" id="free-badge" style="display:none">免费体验期 · 不收任何费用</p>
+        <h1 class="display mt-4">
+          你和他的距离，<br>其实<span class="hl">算得出来</span>。
+        </h1>
+        <p class="lead mt-5">
+          不是星座，不是性格标签。成人依恋理论用两个维度——
+          <strong>对失去的敏感程度</strong>和<strong>对亲密的舒适区</strong>——
+          解释了你为什么会在关系里反复卡在同一个地方。
+        </p>
+
+        <div class="btn-group mt-7">
+          <a class="btn btn--lg" id="btn-start" href="quiz.html">开始测试 →</a>
+          <a class="btn btn--lg btn--white" href="#invite">我收到了邀请</a>
+        </div>
+
+        <p class="tiny mt-4">
+          约 3–5 分钟 · 36 道题 · 无需注册 · 作答不离开你的浏览器
+        </p>
+      </div>
+
+      <!-- 首屏四问：一行一个答案 -->
+      <div class="grid grid--2" style="gap:16px">
+        <div class="stat">
+          <p class="stat__label">这是什么</p>
+          <p class="stat__value" style="font-size:20px">成人依恋类型</p>
+          <p class="stat__sub">两个维度、四个类型</p>
+        </div>
+        <div class="stat">
+          <p class="stat__label">要多久</p>
+          <p class="stat__value" style="font-size:20px">约 3–5 分钟</p>
+          <p class="stat__sub">36 题，答慢一点没关系</p>
+        </div>
+        <div class="stat">
+          <p class="stat__label">要不要钱</p>
+          <p class="stat__value" style="font-size:20px">不要</p>
+          <p class="stat__sub">基础结果免费</p>
+        </div>
+        <div class="stat">
+          <p class="stat__label">要不要登录</p>
+          <p class="stat__value" style="font-size:20px">不用</p>
+          <p class="stat__sub">不收集手机号</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ 续答 ============================ -->
+  <section class="section--tight wrap hide" id="resume-box">
+    <div class="card card--lg" style="background:var(--paper-2)">
+      <div class="row row--between" style="align-items:flex-start">
+        <div style="flex:1;min-width:220px">
+          <p class="tag tag--yellow">未完成的测试</p>
+          <p class="mt-3" id="resume-text"></p>
+        </div>
+        <div class="row" style="gap:12px">
+          <button class="btn" id="btn-resume" type="button">接着答</button>
+          <button class="btn btn--white" id="btn-restart" type="button">重新开始</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ 四个类型 ============================ -->
+  <section class="section wrap">
+    <div class="section__head">
+      <h2>你会测出这四个之一</h2>
+      <p>两个维度各分高低，交叉出四个象限。没有哪一类更好，只有哪一类更费力。</p>
+    </div>
+
+    <div class="grid grid--4">
+      <div class="card" style="background:var(--mint)">
+        <p class="tag">低焦虑 + 低回避</p>
+        <h3 class="mt-3">安全型</h3>
+        <p class="card__body mt-2" style="color:var(--text)">能靠近，也能独处。情绪稳定，表达直接。</p>
+      </div>
+      <div class="card" style="background:var(--pink)">
+        <p class="tag">高焦虑 + 低回避</p>
+        <h3 class="mt-3">焦虑型</h3>
+        <p class="card__body mt-2" style="color:var(--text)">想靠近，怕失去。共情力强，也容易内耗。</p>
+      </div>
+      <div class="card" style="background:var(--blue)">
+        <p class="tag">低焦虑 + 高回避</p>
+        <h3 class="mt-3">回避型</h3>
+        <p class="card__body mt-2" style="color:var(--text-invert)">要空间，怕被卷入。独立可靠，不擅长示弱。</p>
+      </div>
+      <div class="card" style="background:var(--purple)">
+        <p class="tag">高焦虑 + 高回避</p>
+        <h3 class="mt-3">恐惧型</h3>
+        <p class="card__body mt-2" style="color:var(--text)">想靠近，又怕更疼。推拉之间，最消耗。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ 双人合盘 ============================ -->
+  <section class="section wrap">
+    <div class="card card--lg" style="background:var(--paper-2)">
+      <div class="grid grid--2" style="align-items:center;gap:40px">
+        <div>
+          <span class="sticker">双人合盘</span>
+          <h2 class="mt-5">一个人的类型是说明书，<br>两个人的类型才是<span class="hl">体验</span>。</h2>
+          <p class="lead mt-4">
+            你们大概是同一种人，还可能刚好是最难相处的那一种组合。
+            把链接发给对方，两个人答完就能看到：你们卡在哪里，为什么会循环，
+            下一次可以做什么。
+          </p>
+          <p class="tiny mt-4">
+            对方没测完之前，合盘结果不会显示——因为那需要两个人的数据同时存在才能算出来。
+          </p>
+        </div>
+        <div class="grid" style="gap:12px">
+          <div class="card card--flat"><strong>追逃循环检测</strong><p class="card__body mt-2">焦虑 × 回避是最稳定的负性互动模式，我们单独识别它，不给通用适配分糊弄你。</p></div>
+          <div class="card card--flat"><strong>四象限坐标图</strong><p class="card__body mt-2">两个人在同一张图上，一眼看出差异集中在哪一维。</p></div>
+          <div class="card card--flat"><strong>行动约定</strong><p class="card__body mt-2">循环下次启动时，直接照着念的四句话。</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ 邀请入口 ============================ -->
+  <section class="section wrap wrap--narrow" id="invite">
+    <div class="card card--lg">
+      <h2>我收到了邀请</h2>
+      <p class="muted mt-3" style="font-size:14px">
+        把对方发来的链接粘贴进来。你也可以直接点开那条链接，会自动带到这里。
+      </p>
+      <div class="field mt-5">
+        <label class="field__label" for="invite-input">邀请链接</label>
+        <input class="input" id="invite-input" type="text" inputmode="url"
+               placeholder="https://…/duo.html?a=…"
+               aria-describedby="invite-hint">
+        <p class="field__hint" id="invite-hint">链接里只有作答编码，不含姓名、手机号或任何身份信息。</p>
+      </div>
+      <button class="btn btn--lg mt-4" id="btn-invite" type="button">开始答题 →</button>
+    </div>
+  </section>
+
+  <!-- ============================ 方法与免责 ============================ -->
+  <section class="section--tight wrap wrap--narrow">
+    <div class="note note--info">
+      <span class="note__icon" aria-hidden="true">i</span>
+      <div id="norms-note">正在读取常模信息…</div>
+    </div>
+
+    <p class="tiny mt-5">
+      依恋地图是一份自我探索工具，不是心理诊断，也不能替代专业心理咨询或治疗。
+      你不用登录，我们不上传、不存储你的作答；关闭页面后，本机可以清除全部记录。
+    </p>
+  </section>
+
+</main>
+
+<script type="module" src="assets/js/pages/landing.js"></script>
+</body>
+</html>

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>我的结果 · 依恋地图</title>
+<meta name="description" content="你的依恋类型、两个维度得分，以及三条最可能的行为模式。">
+<link rel="stylesheet" href="assets/css/tokens.css">
+<link rel="stylesheet" href="assets/css/app.css">
+<script>
+  try {
+    var t = JSON.parse(localStorage.getItem('am:theme'));
+    if (t === 'dark' || t === 'light') document.documentElement.dataset.theme = t;
+  } catch (e) {}
+</script>
+</head>
+<body>
+
+<main id="main">
+  <section class="section wrap">
+
+    <!-- ============ 3 秒区：类型 + 一句话 + 可截图卡片 ============ -->
+    <div class="grid grid--2" style="align-items:start;gap:40px">
+      <div class="typecard" id="typecard" tabindex="-1"></div>
+
+      <div class="stack">
+        <div class="row" style="gap:10px">
+          <button class="btn btn--sm" id="btn-save-card" type="button">复制结果文字</button>
+          <span class="tiny">想发朋友圈？把类型卡片截图就行。</span>
+        </div>
+
+        <div class="card" id="dims"></div>
+
+        <div class="stack stack--sm" id="quality"></div>
+      </div>
+    </div>
+
+    <!-- ============ 分享长图（MVP 交付物 #5） ============
+         微信内置浏览器对 dataURL 下载的支持不可靠，所以生成后同时给两条路径：
+         一条下载链接 + 一张可长按保存的图。 -->
+    <div class="row mt-6">
+      <button class="btn" id="btn-poster" type="button">生成分享长图</button>
+      <span class="tiny" style="align-self:center">带类型、维度分与直达测试页的二维码。</span>
+    </div>
+    <div class="mt-5 hide" id="poster-host" style="max-width:420px"></div>
+
+    <!-- ============ 常模标注 ============
+         用 info（中性）而不是 warn（红框告警）：这里讲的是分数「跟谁比出来的」，
+         不是用户的作答出了问题。红框会和真正的作答质量告警混淆，也会让刚拿到
+         类型标签的用户误以为「出事了」。完整口径折叠在详情里，透明但不喧哗。 -->
+    <div class="note note--info mt-6 hide" id="norms-banner">
+      <span class="note__icon" aria-hidden="true">i</span>
+      <div id="norms-banner-text"></div>
+    </div>
+
+    <!-- ============ 危机求助资源（必须免费可见） ============
+         这 36 道题问的是被抛弃的恐惧和关系里的自我怀疑。对一部分人来说，
+         答完之后的情绪强度会高于答题之前。此时把一个付费墙推到眼前，
+         是不负责任的。求助入口放在免费区最前面。 -->
+    <div class="note note--info mt-5">
+      <span class="note__icon" aria-hidden="true">☎</span>
+      <div>
+        如果你此刻正处在难以承受的情绪里，请不要独自扛着——
+        <strong>全国统一心理援助热线 12356</strong>（国家卫生健康委设立，24 小时、免费、可匿名拨打）。
+        也可以联系你所在学校的心理中心，或就近医院的临床心理科。
+      </div>
+    </div>
+
+    <!-- ============ 免费：3 条行为模式 ============ -->
+    <section class="section--tight">
+      <div class="section__head">
+        <h2>你最可能的三条行为模式</h2>
+        <p>如果其中两条以上你都点头，这份结果对你就还有参考价值。</p>
+      </div>
+      <div class="stack stack--sm" id="behaviors"></div>
+
+      <div class="note note--ok mt-5">
+        <span class="note__icon" aria-hidden="true">↑</span>
+        <div>
+          <strong>先说一句重要的：</strong>
+          依恋类型不是人格判决，它会随关系经验移动。你今天测出什么，只代表你现在的默认策略——
+          <strong>不是你的上限</strong>。
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 免费：可改变的出口 ============
+         内容红线（core/types.js 第 2 条）：每个类型必须给出「可改变的出口」，
+         且必须出现在免费区可见的位置，不能只藏在付费墙后面。
+         一个只给类型名与行为模式、不给任何出路的页面，用户读到的是判决，不是关心。 -->
+    <section class="section--tight">
+      <div class="card card--lg" id="exit-card" style="background:var(--paper-2)"></div>
+    </section>
+
+    <!-- ============ 付费墙 ============ -->
+    <section class="section--tight">
+      <div class="paywall" id="paywall"></div>
+      <div class="row mt-4 hide" id="redeem-row">
+        <input class="input" id="redeem-input" type="text" placeholder="有兑换码？填在这里" style="max-width:220px">
+        <button class="btn btn--white" id="btn-redeem" type="button">兑换</button>
+      </div>
+    </section>
+
+    <!-- ============ 双人合盘 ============ -->
+    <section class="section">
+      <div class="card card--lg" id="duo-box"></div>
+    </section>
+
+    <!-- ============ 四类型速查 ============ -->
+    <section class="section--tight">
+      <div class="section__head">
+        <h2>四个类型对照表</h2>
+        <p>黄色那一行是你。</p>
+      </div>
+      <div class="card card--flat" style="padding:0;overflow-x:auto">
+        <table style="font-size:14px">
+          <thead>
+            <tr>
+              <th style="width:26%">类型</th>
+              <th style="width:34%">判定规则</th>
+              <th>核心体验</th>
+            </tr>
+          </thead>
+          <tbody id="type-table"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <p class="tiny mt-6">
+      本测试基于成人依恋理论的自评量表，是自我探索工具，不构成心理诊断，
+      也不能替代专业心理咨询或治疗。你的作答没有上传到任何服务器。
+    </p>
+
+  </section>
+</main>
+
+<script type="module" src="assets/js/pages/result.js"></script>
+</body>
+</html>

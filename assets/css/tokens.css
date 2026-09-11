@@ -1,0 +1,146 @@
+/* ==========================================================================
+   《依恋地图》· 设计令牌 (Design Tokens)
+   风格：Neubrutalism —— 硬描边、硬阴影、高饱和、零渐变、直角为主
+   规范来源：ui-ux-pro-max / styles.csv #38 Neubrutalism
+   --------------------------------------------------------------------------
+   改动约定：
+   1. 全站只允许引用本文件的变量，禁止在业务样式里写死颜色/阴影/间距。
+   2. 任何新增颜色必须先在此登记语义名，再在组件中使用。
+   3. 暗色主题只覆盖「值」，不改「名」，保证组件样式零改动。
+   ========================================================================== */
+
+:root {
+  color-scheme: light;
+
+  /* ---------- 墨与纸 ---------- */
+  --line: #000000;          /* 描边色 */
+  --shade: #000000;         /* 硬阴影色 */
+  --paper: #FFFDF7;         /* 页面底色（暖白纸感） */
+  --paper-2: #FFF6DF;       /* 次级底色 */
+  --surface: #FFFFFF;       /* 卡片面 */
+  --surface-alt: #F4F0E4;   /* 弱化面（用过的按钮/禁用底） */
+  --overlay: rgba(0, 0, 0, .55);
+
+  /* ---------- 强调色（高饱和，禁止叠加渐变） ---------- */
+  --yellow: #FFEB3B;
+  --red: #FF5252;
+  --blue: #2196F3;
+  --mint: #4ECDC4;
+  --purple: #B69CFF;
+  --pink: #FF9EC4;
+  --lime: #A8E05F;
+  --orange: #FFA23A;
+
+  /* ---------- 二维码 ----------
+     为什么单独登记一组：二维码的扫描依赖明暗对比，必须始终是「黑码白底」，
+     不能随主题反转（深色主题下若变成白码黑底，多数相机直接扫不出来）。
+     所以暗色主题**刻意不覆盖**这几个值，这是有意的例外，不是漏写。
+     改这里的任何一个值，等于让二维码失效。 */
+  --qr-paper: #FFFFFF;
+  --qr-ink: #000000;
+  --qr-line: #000000;
+  --qr-shade: #000000;
+  --sh-qr: 6px 6px 0 var(--qr-shade);
+
+  /* ---------- 文本 ---------- */
+  --text: #000000;
+  --text-2: #3D3A34;
+  --text-3: #6E685C;
+  --text-invert: #FFFFFF;
+
+  /* ---------- 描边宽度 ---------- */
+  --bw: 3px;
+  --bw-thin: 2px;
+  --bw-thick: 4px;
+
+  /* ---------- 硬阴影（偏移量即令牌，禁写死） ---------- */
+  --sh-sm: 3px 3px 0 var(--shade);
+  --sh: 6px 6px 0 var(--shade);
+  --sh-lg: 10px 10px 0 var(--shade);
+  --sh-hover: 3px 3px 0 var(--shade);
+  --sh-press: 0 0 0 var(--shade);
+  --sh-up: 2px 2px 0 var(--shade);
+
+  /* ---------- 圆角：默认直角，pill 为例外 ---------- */
+  --r: 0px;
+  --r-md: 3px;
+  --r-pill: 999px;
+
+  /* ---------- 间距刻度 ---------- */
+  --s1: 4px;
+  --s2: 8px;
+  --s3: 12px;
+  --s4: 16px;
+  --s5: 24px;
+  --s6: 32px;
+  --s7: 48px;
+  --s8: 64px;
+  --s9: 96px;
+
+  /* ---------- 字体 ----------
+     不依赖网络字体：用系统栈 + 900 字重模拟 Neubrutalism 的粗黑气质。
+     后续若要更强的展示感，可换 Archivo Black / Space Grotesk，
+     只需改这一处，全站生效。 */
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Source Han Sans SC",
+    "Noto Sans CJK SC", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
+
+  /* ---------- 字号刻度 ---------- */
+  --t-display: clamp(36px, 8.2vw, 66px);
+  --t-h1: clamp(28px, 5.2vw, 40px);
+  --t-h2: clamp(22px, 3.6vw, 30px);
+  --t-h3: 20px;
+  --t-h4: 17px;
+  --t-body: 16px;
+  --t-sm: 14px;
+  --t-xs: 13px;
+  --t-xxs: 12px;
+
+  /* ---------- 字重（Neubrutalism 只用重字重） ---------- */
+  --w-black: 900;
+  --w-bold: 800;
+  --w-med: 600;
+  --w-norm: 500;
+
+  /* ---------- 行高 ---------- */
+  --lh-tight: 1.02;
+  --lh-snug: 1.25;
+  --lh-body: 1.75;
+
+  /* ---------- 动效：只用 transform / box-shadow，禁用 blur 与渐变 ---------- */
+  --dur-fast: 90ms;
+  --dur: 120ms;
+  --dur-slow: 220ms;
+  --ease: cubic-bezier(.2, .8, .3, 1);
+
+  /* ---------- 布局 ---------- */
+  --maxw: 1060px;
+  --maxw-narrow: 700px;
+  --gap: var(--s5);
+
+  /* ---------- 层级 ---------- */
+  --z-header: 100;
+  --z-toast: 900;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --line: #FFFDF7;
+  --shade: #FFFDF7;
+  --paper: #141414;
+  --paper-2: #1C1C1C;
+  --surface: #1F1F1F;
+  --surface-alt: #2A2A2A;
+  --overlay: rgba(0, 0, 0, .72);
+
+  --text: #FFFDF7;
+  --text-2: #D8D4C8;
+  --text-3: #9C978A;
+  --text-invert: #000000;
+
+  /* --qr-* 与 --sh-qr 刻意不在暗色下覆盖：二维码必须保持黑码白底。
+     详见 :root 中的说明。 */
+}

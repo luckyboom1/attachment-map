@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>方法说明与免责 · 依恋地图</title>
+<meta name="description" content="依恋地图的算法、常模、隐私政策与伦理声明。写在前面的透明度。">
+<link rel="stylesheet" href="assets/css/tokens.css">
+<link rel="stylesheet" href="assets/css/app.css">
+<script>
+  try {
+    var t = JSON.parse(localStorage.getItem('am:theme'));
+    if (t === 'dark' || t === 'light') document.documentElement.dataset.theme = t;
+  } catch (e) {}
+</script>
+</head>
+<body>
+
+<main id="main">
+  <section class="section wrap wrap--narrow">
+
+    <p class="tag tag--blue">透明度</p>
+    <h1 class="mt-4">方法说明与免责</h1>
+    <p class="lead mt-4">
+      这一页存在的意义是：让你在相信任何结论之前，先知道结论是怎么来的。
+      如果你看完觉得这套方法不靠谱，我们完全接受你关掉页面。
+    </p>
+
+    <!-- ============ 测的是什么 ============ -->
+    <h2 class="mt-7">一、这份测试测的是什么</h2>
+    <p class="mt-3">
+      不是性格，不是人格类型，而是你在亲密关系里的<strong>两套默认策略</strong>：
+    </p>
+    <div class="grid grid--2 mt-4">
+      <div class="card">
+        <p class="tag tag--pink">维度 A</p>
+        <h3 class="mt-3">依恋焦虑</h3>
+        <p class="card__body mt-2">对失去的敏感程度。分数高的人更容易担心被抛弃，需要更频繁的确认。</p>
+      </div>
+      <div class="card">
+        <p class="tag tag--blue">维度 V</p>
+        <h3 class="mt-3">依恋回避</h3>
+        <p class="card__body mt-2">对亲密的舒适区。分数高的人在关系变近时会本能地想保留距离。</p>
+      </div>
+    </div>
+    <p class="mt-4">
+      两个维度互相独立，交叉出四个象限：安全型、焦虑型、回避型、恐惧型。
+      <strong>没有哪一类更好</strong>，区别只是哪一类更费力。
+    </p>
+
+    <!-- ============ 算法 ============ -->
+    <h2 class="mt-7">二、算出来的过程</h2>
+    <p class="mt-3">
+      36 道题，1–7 分。计分是纯算术，没有大模型参与，也不含任何随机性——
+      同一份答案，无论你测多少次，结果完全一致。
+    </p>
+    <pre class="card card--flat mt-4" style="overflow-x:auto"><code style="background:none;border:none;font-size:13px">反向题：    x' = 8 - x
+焦虑维度分：A = 焦虑 18 题的平均分     // 范围 1–7
+回避维度分：V = 回避 18 题的平均分
+
+【口径一】类型判定 —— 与切分点比（回答「算不算高」）
+切分点：   4.0（量表中点；中文文献对 ECR 四型的定界惯例是
+           「取两维度均分，以 4 分为界」）
+
+判定：     A &gt; 4.0 且 V &gt; 4.0   →  恐惧型
+           A &gt; 4.0 且 V ≤ 4.0   →  焦虑型
+           A ≤ 4.0 且 V &gt; 4.0   →  回避型
+           A ≤ 4.0 且 V ≤ 4.0   →  安全型
+
+【口径二】百分位 —— 与已发表样本比（回答「相对谁在什么位置」）
+标准分：   zA = (A - 参照样本均值) / 参照样本标准差
+           zV = (V - 参照样本均值) / 参照样本标准差
+百分位：   由 z 做正态近似换算，范围 0–100</code></pre>
+    <div class="note note--info mt-4">
+      <span class="note__icon" aria-hidden="true">↔</span>
+      <div>
+        <strong>为什么判定和百分位用两套参照，而不是一套。</strong>
+        切分点回答「在量表中点之上还是之下」，样本均值回答「相对那批人处在什么位置」——
+        这是两个不同的问题。本站题目是该构念的改写版本，没有自己的实测分布，
+        所以不能把别人样本的均值搬来当自己的切分线：那会得到
+        「百分位 77，却被判为低回避」这种自相矛盾的输出。
+        等本站样本量足够，两个口径会统一到同一样本上（见下方升级路径）。
+      </div>
+    </div>
+    <p class="mt-4">
+      理论来源：Bowlby 的依恋理论 → Hazan &amp; Shaver（1987）将其应用于成人浪漫关系 →
+      Bartholomew &amp; Horowitz（1991）建立四类模型 →
+      Brennan、Clark &amp; Shaver（1998）通过因素分析发现底层的两个正交维度 →
+      Fraley、Waller &amp; Brennan（2000）以项目反应理论重挑题目，形成沿用至今的 ECR-R 结构。
+    </p>
+    <p class="tiny mt-3">
+      说明：题目文本全部自编，仅沿用「依恋焦虑 / 依恋回避」这两个学术构念。
+      构念本身不受版权保护，具体题目文本受保护，因此我们不做逐字抄录。
+    </p>
+
+    <!-- ============ 常模 ============ -->
+    <h2 class="mt-7">三、关于常模：这里我们必须说实话</h2>
+    <div class="note note--warn mt-4">
+      <span class="note__icon" aria-hidden="true">!</span>
+      <div id="norms-detail">正在读取常模信息…</div>
+    </div>
+    <p class="mt-4">
+      为什么这件事重要：<strong>中文样本的依恋焦虑均值系统性偏高</strong>。
+      如果直接套用英文样本的切分点，会把大批用户误判成焦虑型。
+      所以我们只引用中国样本，并且把「类型判定」和「百分位」两个口径分开讲清楚。
+    </p>
+    <div id="norms-table"></div>
+
+    <!-- ============ 隐私 ============ -->
+    <h2 class="mt-7">四、你的数据去了哪里</h2>
+    <div class="stack stack--sm mt-4">
+      <div class="note note--ok"><span class="note__icon" aria-hidden="true">✓</span><div>不上传。36 道题的计分在你的浏览器里完成，没有网络请求。</div></div>
+      <div class="note note--ok"><span class="note__icon" aria-hidden="true">✓</span><div>不注册。不要求手机号、不要求微信授权、不要求邮箱。</div></div>
+      <div class="note note--ok"><span class="note__icon" aria-hidden="true">✓</span><div>不存服务器。你没有账号，我们也没有你的数据。</div></div>
+      <div class="note note--ok"><span class="note__icon" aria-hidden="true">✓</span><div>可清除。清空浏览器数据即可删除你在本机的全部记录。</div></div>
+      <div class="note note--info"><span class="note__icon" aria-hidden="true">↔</span><div>双人合盘链接里只有作答的编码。<strong>任何拿到链接的人都能解开它</strong>，所以只发给你愿意分享的人。</div></div>
+    </div>
+
+    <!-- ============ 伦理 ============ -->
+    <h2 class="mt-7">五、我们给自己定的七条规矩</h2>
+    <ol class="stack stack--sm mt-4" style="padding-left:20px;list-style:decimal;font-size:15px">
+      <li>不宣称诊断效力。任何页面都不出现"诊断""治疗""心理疾病"。</li>
+      <li>不使用贬损词汇。不出现"缺陷""不正常""有病""冷漠"，也不用"你踩的坑"这类归罪式说法。</li>
+      <li>必须给出可改变的出口。<strong>而且必须出现在免费区可见的位置，不能只藏在付费墙后面</strong>——文案里写了却要付费才看得到，等于没给。</li>
+      <li>不做未成年人的情感类型判定。本测试面向成年人。</li>
+      <li>不诱导重复付费。复测永远免费，付费只买深度内容，不买"重测权"。</li>
+      <li>不把结果用于评判他人。我们不提供"给你的伴侣贴标签"的功能。</li>
+      <li>必须给出求助入口，且放在变现动作之前。</li>
+    </ol>
+
+    <div class="note note--info mt-5">
+      <span class="note__icon" aria-hidden="true">☎</span>
+      <div>
+        <strong>关于第七条：</strong>
+        这 36 道题问的是被抛弃的恐惧和关系里的自我怀疑。对一部分人来说，答完之后情绪的强度会高于答题之前。
+        所以结果页在付费墙之前就放了求助入口：
+        <strong>全国统一心理援助热线 12356</strong>（国家卫生健康委设立，24 小时、免费、可匿名拨打）。
+        也可以联系所在学校的心理中心，或就近医院的临床心理科。
+        <br><br>
+        求助不等于软弱。找一个受过训练的人把话说出来，比自己反复琢磨有效得多。
+      </div>
+    </div>
+
+    <!-- ============ FAQ ============ -->
+    <h2 class="mt-7">六、常见问题</h2>
+    <div class="mt-4">
+      <details class="acc">
+        <summary>测出来是焦虑型，我很崩溃怎么办？</summary>
+        <div class="acc__body">
+          <p>先说结论：焦虑型不是缺陷。</p>
+          <p>它意味着你在关系里有一套特别灵敏的雷达，这套雷达曾经保护过你。真正需要练的不是"变得不在乎"，而是把雷达读到的信号，从"试探"翻译成"直说"。</p>
+          <p>另外，类型会移动。很多人的焦虑分在几年内会明显下降——通常是因为遇到了一个回应稳定的人，或者自己学会了在不安升起时先照顾好自己。</p>
+          <p><strong>如果你现在是「崩溃」而不是「有点被说中」</strong>，那件更重要的事是先把情绪接住：
+          全国统一心理援助热线 <strong>12356</strong>（24 小时、免费、可匿名），
+          或所在学校的心理中心。一个类型标签远不值得你独自扛过今晚。</p>
+        </div>
+      </details>
+      <details class="acc">
+        <summary>为什么我两次测出了不同的类型？</summary>
+        <div class="acc__body">
+          <p>有可能，而且这通常不是 bug。</p>
+          <p>计分本身是确定的——同样的答案一定得到同样的结果。但你的答案本身会变：今天心情好与心情差，读同一句话的感受就不一样。如果两次结果只在切分点附近摆动（比如焦虑分从 3.9 变成 4.1，正好跨过切分点 4.0），说明你的答案就在中间地带，这本身就是有价值的信息。</p>
+          <p>如果连续多次结果差异都很大，建议间隔一段时间、在心绪平静时再测一次。</p>
+        </div>
+      </details>
+      <details class="acc">
+        <summary>为什么你们不给双人合盘一个"适配度分数"？</summary>
+        <div class="acc__body">
+          <p>对于大部分组合，我们确实会给一个基于依恋平面距离的适配度。但有一组例外：焦虑 × 回避。</p>
+          <p>这一对在文献里是最稳定的负性互动循环。它的平面距离往往是"中等"——如果只给一个中等分数，会让人以为"还行，凑合过"。实际上这一组的消耗远高于分数暗示的程度。所以命中时我们不给分数，直接拆解循环机制。</p>
+        </div>
+      </details>
+      <details class="acc">
+        <summary>我可以把结果当成分手或在一起的依据吗？</summary>
+        <div class="acc__body">
+          <p>不可以，我们也不希望你这样做。</p>
+          <p>依恋类型描述的是"默认策略"，不是关系的命运。同一组类型里，有人过得很辛苦，也有人磨合得很好，差别通常不在类型，而在于双方愿不愿意把机制说破、把动作改掉。</p>
+        </div>
+      </details>
+      <details class="acc">
+        <summary>付费之后会看到什么？免费版少给了什么？</summary>
+        <div class="acc__body">
+          <p>免费版给你：类型判定、两个维度的分数与百分位、三条你最可能的行为模式。这些已经足够让你了解自己。</p>
+          <p>付费版给的是"怎么办"：你的模式是怎么形成的、压力下会升级成什么样子、你最常踩的三个坑、和不同类型相处时的规律、三个可以立刻开始做的动作、以及把模式往安全侧移动的路径。</p>
+          <p>如果预算有限，只靠免费版的三个动作去做，也完全有效。付费买的是更细的地图，不是唯一的路。</p>
+        </div>
+      </details>
+      <details class="acc">
+        <summary>什么时候我应该去找专业帮助，而不是用这个？</summary>
+        <div class="acc__body">
+          <p>下面这些情况下，专业帮助的价值会远高于自助：</p>
+          <ul style="padding-left:20px;list-style:disc;margin-top:8px">
+            <li>关系反复破裂，且每次都遵循高度相似的模式</li>
+            <li>长期处于焦虑、低落或失眠状态，影响工作与生活</li>
+            <li>有过创伤经历，一进入亲密关系就会强烈应激</li>
+            <li>你在做自我调整，但每次都在同一个地方卡住</li>
+          </ul>
+          <p>找专业帮助不是"问题很严重"的标志，而是"这件事值得用更专业的方式处理"。</p>
+        </div>
+      </details>
+    </div>
+
+    <!-- ============ 免责 ============ -->
+    <h2 class="mt-7">七、免责声明</h2>
+    <div class="card card--paper2">
+      <p>
+        依恋地图提供的全部内容，基于成人依恋理论的自评量表生成，属于<strong>自我探索与科普性质的工具</strong>，
+        不构成心理诊断，不构成医疗建议，也不能替代专业心理咨询、心理治疗或精神科诊疗。
+      </p>
+      <p class="mt-3">
+        任何测试结果都不应被用来评价他人、筛选员工、判断一段关系是否应当继续，
+        也不应作为任何重要人生决策的唯一依据。如果你正处在严重的情绪困扰中，
+        请优先寻求有执业资质的专业人士帮助。
+      </p>
+      <p class="tiny mt-4" id="build-info"></p>
+    </div>
+
+  </section>
+</main>
+
+<script type="module">
+  import { mountChrome } from './assets/js/ui/ui.js';
+  import { NORMS, normsDisclosure } from './assets/js/core/norms.js';
+  import { auditQuestions } from './assets/js/data/questions.js';
+  import { storageMode, CONFIG } from './assets/js/api/index.js';
+
+  mountChrome({ page: 'about' });
+
+  const d = normsDisclosure();
+  document.getElementById('norms-detail').innerHTML =
+    `<p><strong>当前状态：${d.label}（版本 ${NORMS.version}）</strong></p>` +
+    `<p>${NORMS.sampleNote}</p>` +
+    `<p>${NORMS.spreadNote}</p>` +
+    `<p>${NORMS.itemSetCaveat}</p>` +
+    (NORMS.citation ? `<p class="tiny">出处：${NORMS.citation}</p>` : '');
+
+  // 「切分点」与「样本均值」是两个不同的参照，分开列，避免被当成同一个数
+  const crossRows = NORMS.crossCheck.map((c) => `
+    <tr${c.primary ? ' style="background:var(--yellow)"' : ''}>
+      <td title="${c.label}">${c.short || c.label}</td>
+      <td class="mono">${c.n == null ? '—' : c.n}</td>
+      <td class="mono">${c.anxiety.toFixed(2)} ± ${c.anxietySd.toFixed(2)}</td>
+      <td class="mono">${c.avoidance.toFixed(2)} ± ${c.avoidanceSd.toFixed(2)}</td>
+      <td>${c.note || ''}</td>
+    </tr>`).join('');
+
+  document.getElementById('norms-table').innerHTML = `
+    <div class="grid grid--2 mt-5" style="align-items:start">
+      <div class="card">
+        <p class="tag tag--blue">口径一 · 类型判定</p>
+        <table class="mt-4" style="font-size:14px"><tbody>
+          <tr><td style="width:46%">切分点（焦虑）</td><td class="mono">${NORMS.cut.anxiety}</td></tr>
+          <tr><td>切分点（回避）</td><td class="mono">${NORMS.cut.avoidance}</td></tr>
+          <tr><td>依据</td><td>量表理论中点。中文文献对 ECR 四型的定界惯例是「取两维度均分，以 4 分为界」。</td></tr>
+          <tr><td>为什么不用样本均值</td><td>本站题目是该构念的改写版本，不是 ECR 原题。借用他方样本的均值当切分线，等于假设两者逐题等价。</td></tr>
+        </tbody></table>
+      </div>
+      <div class="card">
+        <p class="tag tag--mint">口径二 · 百分位</p>
+        <table class="mt-4" style="font-size:14px"><tbody>
+          <tr><td style="width:46%">焦虑 均值 / 标准差</td><td class="mono">${NORMS.anxiety.mean} / ${NORMS.anxiety.sd}</td></tr>
+          <tr><td>回避 均值 / 标准差</td><td class="mono">${NORMS.avoidance.mean} / ${NORMS.avoidance.sd}</td></tr>
+          <tr><td>参照样本</td><td>${NORMS.referenceShort}</td></tr>
+          <tr><td>百分位含义</td><td>相对该样本的正态近似位置，<strong>不是</strong>本站题目的实测分布。</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+
+    <h3 class="mt-7">同期中国样本交叉核对</h3>
+    <p class="muted mt-2" style="font-size:14px">列出多个样本而不是一个点估计，是为了让波动范围可见。全部为 36 题 ECR/ECR-R 中文版、7 点计分的维度均分。</p>
+    <table class="mt-4" style="font-size:14px">
+      <thead><tr><th>来源</th><th>N</th><th>依恋焦虑</th><th>依恋回避</th><th>备注</th></tr></thead>
+      <tbody>${crossRows}</tbody>
+    </table>`;
+
+  const audit = auditQuestions();
+  document.getElementById('build-info').innerHTML =
+    `题目自检：共 ${audit.total} 题（焦虑 ${audit.anxiety} / 回避 ${audit.avoidance} / 反向 ${audit.reverse}）。` +
+    `存储模式：${storageMode}。运行模式：${CONFIG.mode}${CONFIG.freeMode ? '（免费体验期）' : ''}。` +
+    (audit.problems.length ? ` ⚠ ${audit.problems.join('；')}` : '');
+</script>
+</body>
+</html>

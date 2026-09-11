@@ -1,0 +1,6 @@
+# 检查工具产生的临时产物，不入库
+.shots/
+.chrome-layout/
+.chrome-tmp/
+node_modules/
+*.log

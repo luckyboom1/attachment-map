@@ -1,0 +1,418 @@
+openapi: 3.0.3
+
+info:
+  title: 依恋地图 API
+  version: 1.0.0
+  description: |
+    依恋地图的后端契约。
+
+    ## 当前状态
+    前端目前运行在 `local` 适配器下：**所有计分在浏览器内完成，本 API 不被调用。**
+    本文件的作用是先把契约固定下来，让后端实现与前端接入可以并行推进，
+    且切换时不需要改任何页面代码（只需把 `CONFIG.mode` 改为 `remote`）。
+
+    ## 设计原则
+    1. **计分以前端为准。** 服务端复算是为了留档与常模积累，不是权威来源。
+       两者不一致时以前端结果展示，并把差异上报用于排查契约漂移。
+    2. **不存储可识别身份的信息。** 没有账号体系，没有手机号，没有邮箱。
+      结果以随机 resultId 标识。
+    3. **不存储原始答案用于画像或广告。** 答案只用于统计常模，且必须聚合后使用。
+    4. 支付是唯一必须落地在服务端的环节，且需满足当地对命理／心理类产品的合规要求。
+
+servers:
+  - url: https://api.example.com/api/v1
+    description: 生产环境（占位，待部署）
+  - url: http://127.0.0.1:5173/api/v1
+    description: 本地桩服务（node server/dev-server.js --api）
+
+tags:
+  - name: stats
+    description: 统计与常模
+  - name: results
+    description: 作答与结果
+  - name: orders
+    description: 订单与权益
+  - name: events
+    description: 埋点
+
+paths:
+
+  /stats/norms:
+    get:
+      tags: [stats]
+      summary: 获取当前常模参数
+      description: |
+        前端启动时拉取一次并缓存。这是「不重新部署前端也能更新切分点」的通道：
+        当样本量足够重算常模后，只需在这里发布新参数。
+
+        **注意**：`source` 为 `provisional` 时，前端会强制在结果页显示标注。
+        不要为了好看而谎报为 `published`。
+      responses:
+        '200':
+          description: 常模参数
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Norms'
+
+  /results:
+    post:
+      tags: [results]
+      summary: 提交作答
+      description: |
+        服务端使用与前端相同的算法复算并留档。用于样本积累与常模重算。
+
+        请求体中的答案是原始作答（1–7）。**不要在这里做类型判定后返回给前端使用**——
+        类型判定由前端负责，服务端返回值仅用于一致性校验与留档。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [answers]
+              properties:
+                answers:
+                  type: object
+                  description: 键为题目 id（字符串化），值为 1–7 的整数
+                  additionalProperties:
+                    type: integer
+                    minimum: 1
+                    maximum: 7
+                  example: { "1": 5, "2": 3, "3": 6 }
+                source:
+                  type: string
+                  enum: [single, duo_initiator, duo_invitee]
+      responses:
+        '201':
+          description: 创建成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubmitResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /results/{resultId}:
+    get:
+      tags: [results]
+      summary: 按编号取回结果
+      parameters:
+        - $ref: '#/components/parameters/ResultId'
+      responses:
+        '200':
+          description: 结果
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubmitResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /results/{resultId}/report:
+    get:
+      tags: [results]
+      summary: 获取报告
+      description: |
+        单人报告为 8 章，合盘报告为 6 章。章节内容当前由前端模板生成；
+        接入后端后可改为服务端渲染，但必须保证**同一 resultId 每次返回内容一致**。
+
+        `generatedBy` 为 `llm` 时，模型只允许润色措辞，不得增删事实条目，
+        更不得改变类型判定。
+      parameters:
+        - $ref: '#/components/parameters/ResultId'
+        - name: mode
+          in: query
+          schema: { type: string, enum: [single, duo], default: single }
+        - name: partnerId
+          in: query
+          required: false
+          schema: { type: string }
+      responses:
+        '200':
+          description: 报告
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Report'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /entitlements:
+    get:
+      tags: [orders]
+      summary: 查询当前会话的权益
+      responses:
+        '200':
+          description: 权益
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Entitlements'
+
+  /orders:
+    post:
+      tags: [orders]
+      summary: 创建订单
+      description: |
+        支付是唯一必须服务端化的环节。渠道按合规成本从低到高：
+        `redeem-code`（第三方内容平台收款后发码）→ `stripe`（出海）→ `wechat`（需营业执照）。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [plan]
+              properties:
+                plan: { type: string, enum: [single, duo] }
+                resultId: { type: string, nullable: true }
+                channel: { type: string, enum: [redeem-code, stripe, wechat, manual] }
+      responses:
+        '201':
+          description: 订单已创建
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+
+  /orders/{orderId}:
+    get:
+      tags: [orders]
+      summary: 查询订单状态
+      description: 支付是异步的。前端应在创建订单后轮询本接口，直到状态不再是 `pending`。
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: 订单
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /redeem:
+    post:
+      tags: [orders]
+      summary: 兑换码解锁
+      description: 过渡方案。用于在没有营业执照、无法接入微信支付时先跑通付费链路。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [code]
+              properties:
+                code: { type: string }
+                plan: { type: string, enum: [single, duo] }
+      responses:
+        '200':
+          description: 解锁后的权益
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Entitlements'
+        '404':
+          description: 兑换码无效或已过期
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '409':
+          description: 该兑换码已被使用
+
+  /duo:
+    post:
+      tags: [results]
+      summary: 服务端版合盘（可选）
+      description: |
+        前端默认使用 URL 编码方案（零后端）。本端点仅为将来需要
+        「跨设备查看」「合盘记录留存」等能力时预留。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [a, b]
+              properties:
+                a: { type: string, description: 发起方答案编码 }
+                b: { type: string, description: 受邀方答案编码 }
+      responses:
+        '200':
+          description: 合盘数据
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DuoResult'
+
+  /events:
+    post:
+      tags: [events]
+      summary: 上报埋点
+      description: |
+        前端在本地做缓冲，批量上报。上报失败不得影响用户体验。
+        漏斗事件名固定为：`funnel_1_landing_view`、`funnel_2_quiz_start`、
+        `funnel_3_quiz_complete`、`funnel_4_result_share`、`funnel_5_pay_click`、
+        `funnel_5b_pay_success`。改动即等于改动漏斗定义。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/Event'
+                - type: object
+                  properties:
+                    events:
+                      type: array
+                      items: { $ref: '#/components/schemas/Event' }
+      responses:
+        '202':
+          description: 已受理
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accepted: { type: integer }
+
+components:
+
+  parameters:
+    ResultId:
+      name: resultId
+      in: path
+      required: true
+      schema: { type: string }
+
+  responses:
+    BadRequest:
+      description: 请求格式不正确
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    Unauthorized:
+      description: 该内容尚未解锁
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    NotFound:
+      description: 找不到资源
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    RateLimited:
+      description: 请求过于频繁
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+
+  schemas:
+
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+          enum: [NOT_IMPLEMENTED, NETWORK, TIMEOUT, BAD_REQUEST, UNAUTHORIZED, CONFLICT, NOT_FOUND, RATE_LIMITED, SERVER]
+        message:
+          type: string
+          description: 面向用户的中文提示，可直接展示
+
+    Norms:
+      type: object
+      properties:
+        version: { type: string, example: provisional-1 }
+        source:
+          type: string
+          enum: [provisional, published, site-sample]
+        anxiety:
+          $ref: '#/components/schemas/NormPair'
+        avoidance:
+          $ref: '#/components/schemas/NormPair'
+        citation: { type: string, nullable: true }
+        provisionalNote: { type: string }
+
+    NormPair:
+      type: object
+      properties:
+        mean: { type: number, example: 4.0 }
+        sd: { type: number, example: 1.2 }
+
+    SubmitResponse:
+      type: object
+      properties:
+        resultId: { type: string }
+        A: { type: number, description: 焦虑维度均分 1–7 }
+        V: { type: number, description: 回避维度均分 1–7 }
+        zA: { type: number }
+        zV: { type: number }
+        type:
+          type: string
+          enum: [secure, anxious, avoidant, fearful]
+        normsVersion: { type: string }
+
+    Entitlements:
+      type: object
+      properties:
+        single: { type: boolean, description: 是否已解锁单人报告 }
+        duo: { type: boolean, description: 是否已解锁双人合盘 }
+        orders:
+          type: array
+          items: { type: string }
+
+    Order:
+      type: object
+      properties:
+        orderId: { type: string }
+        plan: { type: string, enum: [single, duo] }
+        amountCents: { type: integer, description: 以分为单位，避免浮点误差 }
+        currency: { type: string, default: CNY }
+        status:
+          type: string
+          enum: [pending, paid, failed, expired]
+        payUrl: { type: string, nullable: true }
+        createdAt: { type: string, format: date-time }
+
+    Report:
+      type: object
+      properties:
+        resultId: { type: string }
+        typeKey: { type: string, enum: [secure, anxious, avoidant, fearful] }
+        sections:
+          type: array
+          items:
+            type: object
+            properties:
+              title: { type: string }
+              body: { type: string, description: 支持 **粗体** / - 列表 / > 引用 的轻量标记 }
+        generatedBy: { type: string, enum: [template, llm] }
+        disclaimer: { type: string }
+
+    DuoResult:
+      type: object
+      properties:
+        distance: { type: number }
+        normalized: { type: number }
+        fitScore: { type: integer, nullable: true, description: 命中追逃循环时为 null }
+        trap: { type: boolean }
+        pairKey: { type: string, example: anxious|avoidant }
+        headline: { type: string }
+
+    Event:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string }
+        ts: { type: string, format: date-time }
+        props:
+          type: object
+          additionalProperties: true

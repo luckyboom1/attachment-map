@@ -1,0 +1,25 @@
+{
+  "name": "attachment-map",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "依恋地图 —— 基于成人依恋理论的双维度测试与双人合盘。零依赖、零构建、零后端。",
+  "scripts": {
+    "dev": "node server/dev-server.js",
+    "dev:api": "node server/dev-server.js --api",
+    "test": "node tools/selftest.mjs && node tools/check-qr.mjs",
+    "check:qr": "node tools/check-qr.mjs",
+    "check:qr:scan": "node tools/qr-svg-dump.mjs && python tools/check-qr-scan.py",
+    "check:layout": "node tools/check-layout.mjs",
+    "check:shots": "node tools/check-layout.mjs --shots",
+    "check:dom": "node tools/check-dom.mjs",
+    "check:html": "node tools/check-html.mjs",
+    "check": "node tools/selftest.mjs && node tools/check-html.mjs && node tools/check-dom.mjs && node tools/check-qr.mjs",
+    "qr:reference": "python tools/qr-reference-gen.py"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": ["attachment", "ecr-r", "quiz", "neubrutalism", "zero-backend"],
+  "license": "UNLICENSED"
+}
