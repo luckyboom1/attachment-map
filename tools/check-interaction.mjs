@@ -93,7 +93,19 @@ await send('Page.enable');
 const go = async (path) => {
   await send('Emulation.setDeviceMetricsOverride', { width: 390, height: 800, deviceScaleFactor: 1, mobile: true });
   await send('Page.navigate', { url: `${BASE}/${path}` });
-  await sleep(1500);
+  // 等待加载完成 + 站点框架挂载。线上域名要走 307 规范化与模块加载，
+  // 固定 sleep 会在慢网络下量到半初始化的页面，得出假失败。
+  const deadline = Date.now() + 12000;
+  while (Date.now() < deadline) {
+    const r = await send('Runtime.evaluate', { expression: `JSON.stringify({
+      ready: document.readyState,
+      mounted: !!document.querySelector('.site-header') && !!document.getElementById('main'),
+    })`, returnByValue: true });
+    const s = JSON.parse(r.result.value);
+    if (s.ready === 'complete' && s.mounted) break;
+    await sleep(300);
+  }
+  await sleep(400);
 };
 const evalJson = async (expression) => {
   // 调用处传入的是「已执行的 IIFE」，这里只负责序列化
