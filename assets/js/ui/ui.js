@@ -19,7 +19,11 @@ export function h(tag, attrs = {}, children = []) {
     if (k === 'class') el.className = v;
     else if (k === 'html') el.innerHTML = v;
     else if (k === 'text') el.textContent = v;
-    else if (k.startsWith('on') && typeof v === 'function') el.addEventListener(k.slice(2), v);
+    else if (k.startsWith('on') && typeof v === 'function') {
+      // 事件类型必须转小写：DOM 事件名区分大小写，click 事件匹配不上 'Click'。
+      // 这里曾经漏了 toLowerCase，导致所有经 h() 创建的按钮「点了没反应」。
+      el.addEventListener(k.slice(2).toLowerCase(), v);
+    }
     else if (k === 'dataset') Object.assign(el.dataset, v);
     else el.setAttribute(k, v === true ? '' : String(v));
   }
