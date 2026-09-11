@@ -57,8 +57,11 @@ const PAGES = [
  * 这里直接调用应用自己的计分模块造一份真实结果，避免手写假数据与真实结构漂移。
  */
 const SEED = (entitled) => `(async () => {
-  const { score } = await import('/assets/js/core/scoring.js');
-  const { QUESTIONS } = await import('/assets/js/data/questions.js');
+  // 模块地址必须按文档基准解析，不能写死域名根路径——
+  // 项目站点部署在子路径（…/attachment-map/）时，绝对根路径会 404。
+  const base = new URL('./', document.baseURI).href;
+  const { score } = await import(base + 'assets/js/core/scoring.js');
+  const { QUESTIONS } = await import(base + 'assets/js/data/questions.js');
   const ans = {};
   QUESTIONS.forEach((q, i) => { ans[q.id] = (i % 7) + 1; });
   const res = score(ans);

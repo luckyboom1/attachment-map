@@ -2,6 +2,8 @@
 
 基于成人依恋理论的双维度测试站。**零依赖、零构建步骤、零后端**——把目录拖到任何静态托管上就能跑。
 
+**线上地址**：<https://luckyboom1.github.io/attachment-map/>（GitHub Pages 项目站点，公开仓库）
+
 ---
 
 ## 快速开始
