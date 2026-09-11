@@ -28,7 +28,7 @@ if (!resultId) {
 async function boot() {
   main.innerHTML = `
     <section class="section wrap wrap--narrow">
-      <div class="row" style="gap:14px">
+      <div class="row row--snug">
         <span class="spinner" aria-hidden="true"></span>
         <p class="muted">正在打开报告…</p>
       </div>
@@ -58,7 +58,7 @@ function render(report) {
     <section class="section wrap wrap--narrow">
       <div class="row row--between no-print">
         <a class="btn btn--ghost btn--sm" href="${isDuo ? `duo.html${location.search.replace(/^[?]/, '?')}` : `result.html?r=${encodeURIComponent(resultId)}`}">← 返回结果</a>
-        <div class="row" style="gap:8px">
+        <div class="row row--xs">
           <button class="btn btn--sm btn--white" id="btn-copy-report" type="button">复制全文</button>
           <button class="btn btn--sm btn--white" id="btn-print" type="button">打印 / 存 PDF</button>
         </div>
@@ -72,7 +72,7 @@ function render(report) {
 
       <nav class="card card--flat mt-6 no-print">
         <p class="field__label">目录</p>
-        <ol class="mt-3" id="toc" style="padding-left:20px;list-style:decimal;font-size:14px"></ol>
+        <ol class="mt-3 list--inline list--num t-sm" id="toc"></ol>
       </nav>
 
       <div class="stack stack--lg mt-7" id="sections"></div>
@@ -80,7 +80,7 @@ function render(report) {
       <hr class="divider">
       <div class="card card--paper2">
         <h3>关于这份报告</h3>
-        <p class="mt-3" style="font-size:14px;color:var(--text-2)">${report.disclaimer}</p>
+        <p class="mt-3 t-sm muted">${report.disclaimer}</p>
         <p class="mt-3 tiny">
           生成方式：${report.generatedBy === 'template' ? '模板化生成（确定性输出，同一份结果每次打开内容完全一致）' : 'AI 润色'}。
           结果编号 ${resultId}。${CONFIG.freeMode ? '当前为免费体验期，未产生任何费用。' : ''}

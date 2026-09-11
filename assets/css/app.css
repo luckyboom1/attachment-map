@@ -56,7 +56,7 @@ code, kbd, pre { font-family: var(--font-mono); font-size: .92em; }
 code {
   background: var(--surface-alt);
   border: var(--bw-thin) solid var(--line);
-  padding: 1px 5px;
+  padding: 1px var(--s-tight);
 }
 
 /* 焦点可见：全站统一，键盘导航必须能看到 */
@@ -66,9 +66,20 @@ code {
 }
 [data-theme="dark"] :focus-visible { outline-color: var(--yellow); }
 
+/* 答题选项的焦点环要更醒目一点。
+   这 7 个按钮是键盘作答的主路径（1–7 数字键与方向键都会落到它们身上），
+   而按钮本身有 3px 硬阴影，默认 3px 偏移的焦点环会与阴影边缘几乎贴在一起，
+   在密集的 7 个方块之间不容易一眼找到「焦点在哪一档」。 */
+.likert__btn:focus-visible {
+  outline-width: var(--bw-thick);
+  outline-offset: 2px;
+  z-index: 1;
+}
+
 /* 跳转到主内容（无障碍） */
 .skip-link {
   position: absolute; left: -9999px; top: 0; z-index: 999;
+  color: var(--ink-on-accent);
   background: var(--yellow); border: var(--bw) solid var(--line);
   padding: var(--s3) var(--s4); font-weight: var(--w-black);
 }
@@ -91,7 +102,25 @@ code {
 .section { padding: var(--s8) 0; }
 .section--tight { padding: var(--s7) 0; }
 .section__head { margin-bottom: var(--s6); }
-.section__head p { color: var(--text-2); margin-top: var(--s3); max-width: 62ch; }
+.section__head p { color: var(--text-2); margin-top: var(--s3); max-width: var(--measure); }
+
+/* ---------------- 成段阅读的行宽约束 ----------------
+   为什么用「统一施加 max-width」而不是逐处调窄：
+   max-width 只在该元素**本来会超过**上限时才生效。栅格里的卡片自然比 62ch 窄，
+   完全不受影响；而拉满整行的长段落会被收到舒适行宽。
+   所以这一条可以安全地施加在全部正文级元素上，不需要逐个判断。
+   实测背景：不加这一条时，桌面端长段落跑到每行 60+ 字（中文舒适上限约 40 字）。 */
+.wrap p,
+.wrap li,
+.acc__body p,
+.card > p,
+.card__body,
+.typecard__tagline { max-width: var(--measure); }
+
+/* 例外：这几类是短标签或需要撑满的容器，不受行宽约束 */
+.stat__value, .stat__sub, .stat__label,
+.dimbar__val, .dimbar__name, .dimbar__scale,
+.qr-caption, .section__head p + p { max-width: none; }
 
 .stack  { display: flex; flex-direction: column; gap: var(--s5); }
 .stack--sm { gap: var(--s3); }
@@ -124,12 +153,12 @@ code {
   border: var(--bw) solid var(--line);
   box-shadow: var(--sh-up);
   display: grid; place-items: center;
-  font-size: 15px; font-weight: var(--w-black);
+  font-size: var(--t-md); font-weight: var(--w-black);
 }
 .site-nav { display: flex; gap: var(--s2); align-items: center; }
 .site-nav a {
   font-size: var(--t-sm); font-weight: var(--w-bold);
-  padding: 5px var(--s3);
+  padding: var(--s-tight) var(--s3);
   border: var(--bw-thin) solid transparent;
   transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease);
 }
@@ -159,17 +188,22 @@ code {
 .dim { color: var(--text-3); }
 .mono { font-family: var(--font-mono); }
 .tiny { font-size: var(--t-xxs); color: var(--text-3); }
-.hl { background: var(--yellow); padding: 0 4px; border-bottom: var(--bw-thin) solid var(--line); }
+.hl { color: var(--ink-on-accent); background: var(--yellow); padding: 0 4px; border-bottom: var(--bw-thin) solid var(--line); }
 
 /* ============================ 5. Components ============================ */
 
 /* --- 5.1 按钮 --- */
+/* 每个按钮变体同时声明底色与墨色（--btn-bg / --btn-fg），
+   不依赖源码顺序，也不依赖继承。
+   为什么必须成对声明：底色是固定强调色时不随主题反转，
+   而 color 若继承主题，暗色下会变成亮底白字（实测 1.2:1，几乎不可见）。 */
 .btn {
   --btn-bg: var(--yellow);
+  --btn-fg: var(--ink-on-accent);
   display: inline-flex; align-items: center; justify-content: center; gap: var(--s2);
   min-height: 46px; padding: var(--s3) var(--s5);
   background: var(--btn-bg);
-  color: var(--text);
+  color: var(--btn-fg);
   border: var(--bw) solid var(--line);
   box-shadow: var(--sh);
   font-weight: var(--w-black); font-size: var(--t-body);
@@ -192,9 +226,9 @@ code {
 .btn--lg { min-height: 60px; padding: var(--s4) var(--s6); font-size: clamp(17px, 2.2vw, 21px); }
 .btn--sm { min-height: 36px; padding: var(--s2) var(--s3); font-size: var(--t-sm); }
 .btn--block { width: 100%; }
-.btn--white { --btn-bg: var(--surface); }
-.btn--blue  { --btn-bg: var(--blue);    color: var(--text-invert); }
-.btn--red   { --btn-bg: var(--red);     color: var(--text-invert); }
+.btn--white { --btn-bg: var(--surface); --btn-fg: var(--text); }
+.btn--blue  { --btn-bg: var(--blue); }
+.btn--red   { --btn-bg: var(--red); }
 .btn--mint  { --btn-bg: var(--mint); }
 .btn--pink  { --btn-bg: var(--pink); }
 .btn--purple{ --btn-bg: var(--purple); }
@@ -215,9 +249,26 @@ code {
 .card--flat { box-shadow: none; }
 .card--lg { padding: var(--s6); }
 .card--tight { padding: var(--s4); }
-.card--yellow { background: var(--yellow); }
+.card--yellow { color: var(--ink-on-accent); background: var(--yellow); }
 .card--paper2 { background: var(--paper-2); }
 .card--dashed { border-style: dashed; box-shadow: none; }
+
+/* 四个依恋类型卡。底色是固定强调色，不随主题反转，
+   所以文字锁定深色（理由见 tokens.css 的 --ink-on-accent）。
+   原来这里是在 HTML 上逐张写 style="background:var(--mint)" 与内联文字色，
+   结果是：改配色要翻四个文件，且暗色主题下浅底会配上浅字。 */
+.card--secure, .card--anxious, .card--avoidant, .card--fearful { color: var(--ink-on-accent); }
+.card--secure { background: var(--mint); }
+.card--anxious { background: var(--pink); }
+.card--avoidant { background: var(--blue); }
+.card--fearful { background: var(--purple); }
+.card--secure .card__body, .card--anxious .card__body,
+.card--avoidant .card__body, .card--fearful .card__body { color: var(--ink-on-accent); }
+/* 注意：这里**不**包含 .tag。标签自带 theme 感知的底色（--surface），
+   文字必须跟随主题；若一并锁成深色，暗色下会变成深底深字。 */
+/* 这四张卡里的说明文字本来就短，不受行宽约束（否则会被无谓地压窄） */
+.card--secure .card__body, .card--anxious .card__body,
+.card--avoidant .card__body, .card--fearful .card__body { max-width: none; }
 .card__title { font-size: var(--t-h3); font-weight: var(--w-black); margin-bottom: var(--s2); }
 .card__body { color: var(--text-2); font-size: var(--t-sm); }
 
@@ -228,19 +279,35 @@ code {
 .grid--4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 .grid--auto { grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
 
+/* 栅格变体：替代此前散在各页 HTML 里的 style="gap:40px" 一类内联写法。
+   「主区 + 侧栏」型版式在宽屏需要更大的列间距，窄屏要收回来，
+   把它变成具名类之后，间距调整只需改一处，也不会再出现三段不同的魔数。 */
+.grid--2--split { gap: var(--s7); align-items: center; }
+.grid--2--top { gap: var(--s7); align-items: start; }
+.grid--2--compact { gap: var(--s4); }
+
+/* 带项目符号的列表：缩进与符号由这里统一，不再由每页内联 padding-left 决定 */
+.list { padding-left: var(--s5); list-style: disc; max-width: var(--measure); }
+.list > li + li { margin-top: var(--s2); }
+.list--num { list-style: decimal; }
+
 /* --- 5.3 标签 / 徽标 --- */
 .tag {
-  display: inline-flex; align-items: center; gap: 5px;
+  display: inline-flex; align-items: center; gap: var(--s-tight);
   padding: 2px var(--s3);
+  /* 底色跟随主题，墨色因此也跟随主题 */
+  color: var(--text);
   background: var(--surface);
   border: var(--bw-thin) solid var(--line);
   border-radius: var(--r-pill);
   font-size: var(--t-xxs); font-weight: var(--w-black);
   white-space: nowrap;
 }
+.tag--yellow, .tag--red, .tag--blue,
+.tag--mint, .tag--pink, .tag--purple, .tag--lime { color: var(--ink-on-accent); }
 .tag--yellow { background: var(--yellow); }
-.tag--red    { background: var(--red);    color: var(--text-invert); }
-.tag--blue   { background: var(--blue);   color: var(--text-invert); }
+.tag--red    { background: var(--red); }
+.tag--blue   { background: var(--blue); }
 .tag--mint   { background: var(--mint); }
 .tag--pink   { background: var(--pink); }
 .tag--purple { background: var(--purple); }
@@ -250,7 +317,8 @@ code {
 .sticker {
   display: inline-block;
   padding: var(--s2) var(--s4);
-  background: var(--red); color: var(--text-invert);
+  color: var(--ink-on-accent);
+  background: var(--red);
   border: var(--bw) solid var(--line);
   box-shadow: var(--sh-sm);
   font-weight: var(--w-black); font-size: var(--t-sm);
@@ -270,7 +338,12 @@ code {
   box-shadow: var(--sh-up);
   font-size: var(--t-sm);
 }
-.input:focus, .textarea:focus { outline: none; box-shadow: var(--sh-hover); transform: translate(-1px, -1px); }
+/* 输入框的焦点处理：原写法 outline: none 抹掉了全站统一的焦点环，
+   只剩「阴影从 6px 收到 3px」这一点变化——对键盘用户来说提示太弱，
+   而这段代码在「邀请链接」输入框上，是键盘操作的关键入口。
+   现在改成双层反馈：保留全站焦点环（键盘可见），同时保留内缩位移（鼠标也有感）。 */
+.input:focus, .textarea:focus { box-shadow: var(--sh-hover); transform: translate(-1px, -1px); }
+.input:focus:not(:focus-visible), .textarea:focus:not(:focus-visible) { outline: none; }
 .textarea { min-height: 96px; resize: vertical; font-family: var(--font-mono); font-size: var(--t-xs); }
 .input[aria-invalid="true"] { border-color: var(--red); box-shadow: 3px 3px 0 var(--red); }
 
@@ -402,7 +475,7 @@ code {
   display: flex; flex-wrap: wrap; gap: var(--s4);
   font-size: var(--t-xxs); color: var(--text-3); font-family: var(--font-mono);
 }
-.dimbar__legend span { display: inline-flex; align-items: center; gap: 5px; }
+.dimbar__legend span { display: inline-flex; align-items: center; gap: var(--s-tight); }
 .dimbar__legend i { display: inline-block; width: 0; height: 12px; }
 .dimbar__legend i.cut { border-left: var(--bw-thin) dashed var(--line); }
 .dimbar__legend i.ref { border-left: var(--bw-thin) dotted var(--red); }
@@ -416,13 +489,13 @@ code {
   border-left-width: var(--s2);
   font-size: var(--t-sm);
 }
-.note--warn { background: #FFF1F1; border-color: var(--line); border-left-color: var(--red); }
-.note--info { background: #EEF7FF; border-left-color: var(--blue); }
-.note--ok   { background: #EEFCF4; border-left-color: var(--lime); }
-[data-theme="dark"] .note--warn { background: #2A1616; }
-[data-theme="dark"] .note--info { background: #16222A; }
-[data-theme="dark"] .note--ok   { background: #16261E; }
+.note--warn { background: var(--note-warn-bg); border-left-color: var(--red); }
+.note--info { background: var(--note-info-bg); border-left-color: var(--blue); }
+.note--ok   { background: var(--note-ok-bg); border-left-color: var(--lime); }
 .note__icon { flex: none; font-weight: var(--w-black); }
+/* 提示条里的正文同样受行宽约束：宽屏下提示条会拉满容器，
+   不加限制时一行会到 60 字以上，恰恰是「说明性文字」最容易读串的地方。 */
+.note > div { max-width: var(--measure); }
 
 /* --- 5.10 付费墙 --- */
 .paywall {
@@ -442,11 +515,12 @@ code {
   font-size: var(--t-sm); color: var(--text-2);
 }
 .paywall__list li::before {
-  content: "■"; color: var(--blue); font-size: 12px; line-height: 1.9;
+  content: "■"; color: var(--blue); font-size: var(--t-xxs); line-height: 1.9;
 }
 
 /* --- 5.11 结果类型卡（可截图） --- */
 .typecard {
+  color: var(--ink-on-accent);
   background: var(--yellow);
   border: var(--bw-thick) solid var(--line);
   box-shadow: var(--sh-lg);
@@ -470,8 +544,6 @@ code {
 .typecard--secure   { background: var(--mint); }
 .typecard--anxious  { background: var(--pink); }
 .typecard--avoidant { background: var(--blue); }
-.typecard--avoidant .typecard__tagline,
-.typecard--avoidant .typecard__foot { color: var(--text-invert); }
 .typecard--fearful  { background: var(--purple); }
 
 /* --- 5.12 四象限图 --- */
@@ -497,7 +569,7 @@ details.acc > summary {
 }
 details.acc > summary::-webkit-details-marker { display: none; }
 details.acc > summary::after { content: "▾"; }
-details.acc[open] > summary { background: var(--yellow); border-bottom: var(--bw-thin) solid var(--line); }
+details.acc[open] > summary { color: var(--ink-on-accent); background: var(--yellow); border-bottom: var(--bw-thin) solid var(--line); }
 details.acc[open] > summary::after { content: "▴"; }
 /* 正文容器是 <div class="acc__body">，不是 <details class="acc__body">。
    原来的写法带了 details 限定符，这两条规则从未匹配到任何元素——
@@ -511,6 +583,7 @@ details.acc[open] > summary::after { content: "▴"; }
   z-index: var(--z-toast); display: grid; gap: var(--s3); width: min(92vw, 420px);
 }
 .toast {
+  color: var(--ink-on-accent);
   background: var(--yellow);
   border: var(--bw) solid var(--line);
   box-shadow: var(--sh);
@@ -518,7 +591,7 @@ details.acc[open] > summary::after { content: "▴"; }
   font-size: var(--t-sm); font-weight: var(--w-bold);
   animation: toast-in var(--dur-slow) var(--ease) both;
 }
-.toast--err { background: var(--red); color: var(--text-invert); }
+.toast--err { background: var(--red); }
 @keyframes toast-in {
   from { transform: translateY(14px); opacity: 0; }
   to   { transform: translateY(0);    opacity: 1; }
@@ -552,8 +625,41 @@ details.acc[open] > summary::after { content: "▴"; }
 /* ============================ 6. Utilities ============================ */
 .tc { text-align: center; }
 .tr { text-align: right; }
+/* 字号工具类：直接对应字号刻度。
+   此前页面里写了 6 处 style="font-size:14px" 与 4 处 20px，
+   这些散值不受刻度管理，改字号时会被漏掉，也无法统一响应窄屏。 */
+.t-h2 { font-size: var(--t-h2); }
+.t-h3 { font-size: var(--t-h3); }
+.t-body { font-size: var(--t-body); }
+.t-md { font-size: var(--t-md); }
+.t-sm { font-size: var(--t-sm); }
+.t-xs { font-size: var(--t-xs); }
+/* 行内间距变体 */
+.row--snug { gap: var(--s3); }
+.row--xs { gap: var(--s-tight); }
+.row--top { align-items: flex-start; }
+.stack--xs { gap: var(--s2); }
+
+/* 长串不可断行文本（链接、编码）必须允许在任意位置换行。
+   邀请链接是一整串无空格字符，默认断行规则不会在中间断开，
+   窄屏上会直接撑破容器；而这类「可换行」正是复制链接场景需要的。 */
+.break-anywhere { overflow-wrap: anywhere; word-break: break-word; }
+
+/* 列表的紧凑变体：用于正文内的枚举，不需要 .list 那样的大缩进 */
+.list--inline { margin: 0; padding-left: var(--s5); list-style: disc; }
+.list--inline.list--num { list-style: decimal; }
+
+/* 引用块（报告页生成） */
+.quote {
+  border-left: var(--s2) solid var(--line);
+  padding: var(--s1) 0 var(--s1) var(--s4);
+  margin: 0;
+  color: var(--text-2);
+  max-width: var(--measure);
+}
 .mt-2{margin-top:var(--s2)} .mt-3{margin-top:var(--s3)} .mt-4{margin-top:var(--s4)}
 .mt-5{margin-top:var(--s5)} .mt-6{margin-top:var(--s6)} .mt-7{margin-top:var(--s7)}
+.ml-2{margin-left:var(--s2)} .ml-3{margin-left:var(--s3)}
 .mb-3{margin-bottom:var(--s3)} .mb-4{margin-bottom:var(--s4)} .mb-5{margin-bottom:var(--s5)}
 .hide { display: none !important; }
 .nowrap { white-space: nowrap; }
@@ -598,28 +704,56 @@ details.acc[open] > summary::after { content: "▴"; }
   text-align: center;
 }
 
+/* 续答提示：宽屏时文字在左、按钮在右；窄屏时必须改为上下堆叠。
+   原因：文字块与两个按钮在 360px 宽度下会互相挤压，
+   提示句被压到每行 10 字左右（实测），读起来断断续续。
+   这类「文字 + 操作」的行，窄屏一律改成纵向排列。 */
+.resume-row__text { flex: 1 1 260px; min-width: 0; }
+@media (max-width: 640px) {
+  .resume-row { flex-direction: column; align-items: stretch; gap: var(--s4); }
+  .resume-row__text { flex: none; }
+  .resume-row > .row { width: 100%; }
+}
+
 /* ============================ 8. Responsive ============================ */
-@media (max-width: 860px) {
+/* 断点设置依据（实测各宽度下每行字数得出）：
+   960px —— 低于此宽度时，四列/三列栅格折叠为两列。
+            原先的断点是 860px，导致 861–960 这一段（含 iPad 竖屏 768 与
+            常见平板 834）仍维持四列，每列只剩约 200px，中文长句频繁折行。
+   640px —— 低于此宽度时全部栅格单列，栅格间距收紧。
+   960 与 640 之间保留两列，是「平板横竖屏都能读」的区间。 */
+@media (max-width: 960px) {
   .grid--4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .grid--3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid--2 { gap: var(--s6); }
+  /* 「主区 + 侧栏」型版式在这个区间折叠为单列。
+     必须折叠的原因不只是挤：大标题字号用的是 vw（视口宽度）单位，
+     在分栏后容器只剩视口一半宽，但字号仍按整个视口计算，
+     于是 768px 平板上会出现「63px 的字塞进 336px 的栏」——
+     实测每行只能放 4–5 个字，标题被切成四段。
+     vw 单位在分栏布局里会失效，这是它最常见的坑；折叠成单列是最稳的解法。 */
+  .grid--2--split, .grid--2--top { grid-template-columns: minmax(0, 1fr); gap: var(--s6); }
 }
 @media (max-width: 640px) {
   :root { --s8: 44px; --s9: 64px; }
   .wrap { padding: 0 var(--s4); }
   .grid--2, .grid--3, .grid--4 { grid-template-columns: minmax(0, 1fr); }
-  .site-nav a { padding: 5px var(--s2); font-size: var(--t-xs); }
+  .grid { gap: var(--s4); }
+  .site-nav a { padding: var(--s-tight) var(--s2); font-size: var(--t-xs); }
   .card, .card--lg, .paywall { padding: var(--s4); }
   .btn-group { flex-direction: column; }
   .btn-group .btn { width: 100%; }
-  .likert__btn { font-size: 16px; }
-  .likert__scale { gap: 5px; }
-  .likert__anchors { gap: 5px; }
+  .likert__btn { font-size: var(--t-body); }
+  .likert__scale { gap: var(--s-tight); }
+  .likert__anchors { gap: var(--s-tight); }
   .typecard { padding: var(--s5) var(--s4); }
   /* 窄屏下二维码居中占满，比挤在链接旁边更好扫 */
   .qr-block { flex-direction: column; gap: var(--s5); }
   .qr-figure { align-self: center; }
   .qr { width: min(280px, 100%); }
   .qr-caption { max-width: 280px; }
+  /* 窄屏下栅格统一单列，面板式栅格不再需要额外列间距 */
+  .grid--2--split { gap: var(--s5); }
 }
 
 /* ============================ 9. Motion / Print ============================ */
@@ -634,7 +768,15 @@ details.acc[open] > summary::after { content: "▴"; }
 
 @media print {
   .site-header, .site-footer, .btn, .toast-host, .no-print { display: none !important; }
-  body { background: #fff; color: #000; }
+  body { background: var(--print-paper); color: var(--print-ink); }
   .card, .typecard, .stat, .dimbar__track, .progress { box-shadow: none !important; }
   .card { break-inside: avoid; }
 }
+
+/* --- 6.1 少量结构工具类（替代单处内联样式） --- */
+/* 表格 / 代码块的横向滚动：窄屏必须能滚，否则内容被裁掉 */
+.scroll-x { overflow-x: auto; }
+/* 代码块内的 <code>：不需要自带的底色与描边，只保留等宽字 */
+.code-plain { background: none; border: none; }
+/* 对照表中的「当前行」高亮。方法说明页用它标出本站采用的那一组样本。 */
+tbody tr.is-primary { color: var(--ink-on-accent); background: var(--yellow); }

@@ -37,8 +37,15 @@ const ROOT = resolve(join(fileURLToPath(new URL('.', import.meta.url)), '..'));
 const BASE = process.env.AM_BASE_URL || 'http://127.0.0.1:5173';
 const PORT = 9222;
 
-/** 常见手机 CSS 宽度。360 与 390 覆盖了国内安卓与 iPhone 的主流机型。 */
-const WIDTHS = [320, 360, 375, 390, 414, 430];
+/**
+ * 视口宽度清单。分三档，覆盖真实设备：
+ *   手机  320 / 360 / 375 / 390 / 414 / 430
+ *   平板  640 / 768 / 834 / 1024   ← 640–860 这一段曾被忽略：
+ *          断点只写了 ≤860 与 ≤640，两列栅格在 641–860 之间不折叠，
+ *          而 768（iPad 竖屏）正落在这一段里。
+ *   桌面  1280 / 1440
+ */
+const WIDTHS = [320, 360, 375, 390, 414, 430, 640, 768, 834, 1024, 1280, 1440];
 
 /** 需要检查的页面。duo 页带上一个合法邀请码，才能走到真实的等待态。 */
 const PAGES = [
@@ -227,6 +234,7 @@ await cdp.send('Page.enable');
 await cdp.send('Runtime.enable');
 
 const wantShots = process.argv.includes('--shots');
+const dark = process.argv.includes('--dark');
 const shotDir = join(ROOT, '.shots');
 
 console.log(`\n\x1b[1m布局度量检查\x1b[0m  ${BASE}\n   视口宽度：${WIDTHS.join(' / ')} px\n`);
@@ -297,19 +305,23 @@ for (const page of PAGES) {
 
   if (wantShots) {
     mkdirSync(shotDir, { recursive: true });
-    await cdp.send('Emulation.setDeviceMetricsOverride', {
-      width: 390, height: 900, deviceScaleFactor: 1, mobile: true,
-    });
-    const loaded = cdp.once('Page.loadEventFired').catch(() => {});
-    await cdp.send('Page.navigate', { url: `${BASE}/${page.path}` });
-    await loaded;
-    await sleep(320);
-    const shot = await cdp.send('Page.captureScreenshot', {
-      format: 'png', captureBeyondViewport: true,
-    });
-    const file = join(shotDir, `${page.path.replace(/[?=&.]/g, '_')}.png`);
-    writeFileSync(file, Buffer.from(shot.data, 'base64'));
-    console.log(`    快照 ${file}`);
+    // 手机与平板各截一张：只截手机看不到「两列栅格在中间宽度是否被挤扁」，
+    // 只截桌面看不到触屏下的实际排版。
+    for (const [label, w, h] of [['m', 390, 900], ['t', 768, 1000], ['d', 1280, 900]]) {
+      await cdp.send('Emulation.setDeviceMetricsOverride', {
+        width: w, height: h, deviceScaleFactor: 1, mobile: w < 768,
+      });
+      const loaded = cdp.once('Page.loadEventFired').catch(() => {});
+      await cdp.send('Page.navigate', { url: `${BASE}/${page.path}` });
+      await loaded;
+      await sleep(320);
+      const shot = await cdp.send('Page.captureScreenshot', {
+        format: 'png', captureBeyondViewport: true,
+      });
+      const file = join(shotDir, `${dark?'dk-':''}${label}-${page.path.replace(/[?=&.]/g, '_')}.png`);
+      writeFileSync(file, Buffer.from(shot.data, 'base64'));
+    }
+    console.log(`    快照 ${page.name}（手机 / 平板 / 桌面）`);
   }
 }
 

@@ -13,6 +13,8 @@
     "check:layout": "node tools/check-layout.mjs",
     "check:interaction": "node tools/check-interaction.mjs",
     "check:perf": "node tools/check-perf.mjs",
+    "check:contrast": "node tools/check-contrast.mjs",
+    "check:type": "node tools/check-density.mjs",
     "check:shots": "node tools/check-layout.mjs --shots",
     "check:dom": "node tools/check-dom.mjs",
     "check:html": "node tools/check-html.mjs",

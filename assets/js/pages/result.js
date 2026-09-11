@@ -153,12 +153,12 @@ async function main(result) {
   TYPE_TABLE.forEach((t) => {
     const ty = getType(t.key);
     const mine = t.key === result.type;
-    tableHost.appendChild(h('tr', { style: mine ? 'background:var(--yellow)' : '' }, [
+    tableHost.appendChild(h('tr', { class: mine ? 'is-primary' : '' }, [
       h('td', {}, [
         h('strong', { text: ty.name }),
-        mine ? h('span', { class: 'tag tag--red', style: 'margin-left:6px', text: '你' }) : null,
+        mine ? h('span', { class: 'tag tag--red ml-2', text: '你' }) : null,
       ]),
-      h('td', { class: 'mono', style: 'font-size:13px', text: t.rule }),
+      h('td', { class: 'mono t-xs', text: t.rule }),
       h('td', { text: t.core }),
     ]));
   });
@@ -232,7 +232,7 @@ function renderExit(type) {
 
   host.innerHTML = `
     <p class="tag tag--mint">现在就可以做的一件事</p>
-    <p class="mt-4" style="font-size:16px;line-height:1.75">${type.profile.exit}</p>
+    <p class="mt-4 t-body" style="line-height:1.75">${type.profile.exit}</p>
     <p class="tiny mt-4">
       这一段不用付费就能看到。深度报告里还有压力状态下的预警、最容易反复出现的三个地方，
       以及每条各配一个具体改法。
@@ -251,7 +251,7 @@ function renderPaywall(ent, currentId) {
         <div>
           <p class="tag tag--lime">已解锁</p>
           <h3 class="mt-3">你的深度报告已经打开</h3>
-          <p class="muted mt-2" style="font-size:14px">8 个章节：模式溯源、压力预警、反复出现的模式、应对动作、往安全侧移动的路径。</p>
+          <p class="muted mt-2 t-sm">8 个章节：模式溯源、压力预警、反复出现的模式、应对动作、往安全侧移动的路径。</p>
         </div>
       </div>
       <a class="btn btn--lg mt-5" href="${reportHref}">查看我的报告 →</a>`;
@@ -333,7 +333,7 @@ function renderDuoBox(result) {
 
   if (!inviteUrl) {
     box.innerHTML =
-      '<p class="muted" style="font-size:14px">本机未保留原始作答，无法生成邀请链接。请重新测试一次。</p>';
+      '<p class="muted t-sm">本机未保留原始作答，无法生成邀请链接。请重新测试一次。</p>';
     return;
   }
 
@@ -341,7 +341,7 @@ function renderDuoBox(result) {
     <div class="row row--between" style="align-items:flex-start">
       <div style="min-width:220px;flex:1">
         <h3>想知道你们为什么会卡在同一个地方？</h3>
-        <p class="muted mt-2" style="font-size:14px">
+        <p class="muted mt-2 t-sm">
           把链接发给对方。对方答完之前，合盘结果不会显示——
           因为这需要两个人的数据同时存在才能算出来。
         </p>
@@ -354,7 +354,7 @@ function renderDuoBox(result) {
           <button class="btn" id="btn-copy-invite" type="button">复制邀请链接</button>
           <button class="btn btn--white" id="btn-share-invite" type="button">系统分享</button>
         </div>
-        <p class="tiny mt-3 mono" id="invite-preview"></p>
+        <p class="tiny mt-3 mono break-anywhere" id="invite-preview"></p>
         <p class="tiny mt-3">二维码在本机生成，链接不经过任何第三方。</p>
       </div>
       <div id="qr-host"></div>

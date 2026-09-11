@@ -53,7 +53,7 @@ function renderWaiting(values) {
 
       <div class="card card--lg mt-7">
         <h3>把下面这段发给对方</h3>
-        <p class="muted mt-2" style="font-size:14px">建议附一句："我测完了，你也测一下，我们才能看到合盘。"</p>
+        <p class="muted mt-2 t-sm">建议附一句："我测完了，你也测一下，我们才能看到合盘。"</p>
 
         <div class="qr-block mt-5">
           <div class="qr-block__text">
@@ -141,12 +141,12 @@ async function renderDuo(valuesA, valuesB) {
         </div>
       </div>
 
-      <div class="grid grid--2 mt-7" style="align-items:start">
+      <div class="grid grid--2 mt-7 row--top">
         <div class="quad">${quadSvg(resA, resB)}</div>
         <div class="stack">
           <div class="card">
             <h3>${tA.name} × ${tB.name}</h3>
-            <table class="mt-4" style="font-size:14px">
+            <table class="mt-4 t-sm">
               <tbody>
                 <tr><td style="width:35%">前者</td><td><strong>${tA.name}</strong>（焦虑 ${resA.A} / 回避 ${resA.V}）</td></tr>
                 <tr><td>后者</td><td><strong>${tB.name}</strong>（焦虑 ${resB.A} / 回避 ${resB.V}）</td></tr>
@@ -162,10 +162,10 @@ async function renderDuo(valuesA, valuesB) {
 
       <div class="card card--lg mt-7">
         <h2>${duo.trap ? '为什么你们老卡在同一个地方' : '你们的互动机制'}</h2>
-        <div class="mt-4" style="font-size:15px;color:var(--text-2)">${richText(duo.note.dynamics)}</div>
+        <div class="mt-4 t-md muted">${richText(duo.note.dynamics)}</div>
       </div>
 
-      <div class="grid grid--2 mt-6" style="align-items:start">
+      <div class="grid grid--2 mt-6 row--top">
         <div class="card">
           <p class="tag tag--mint">给前者的建议</p>
           <div class="stack stack--sm mt-4" id="adv-a"></div>
@@ -182,7 +182,7 @@ async function renderDuo(valuesA, valuesB) {
       <div class="row row--between no-print">
         <div>
           <h3>把这段抄下来贴起来</h3>
-          <p class="muted mt-2" style="font-size:14px">循环下次启动时，这段话比任何分析都有用。</p>
+          <p class="muted mt-2 t-sm">循环下次启动时，这段话比任何分析都有用。</p>
         </div>
         <button class="btn btn--white" id="btn-copy-plan" type="button">复制行动约定</button>
       </div>

@@ -54,7 +54,7 @@
       36 道题，1–7 分。计分是纯算术，没有大模型参与，也不含任何随机性——
       同一份答案，无论你测多少次，结果完全一致。
     </p>
-    <pre class="card card--flat mt-4" style="overflow-x:auto"><code style="background:none;border:none;font-size:13px">反向题：    x' = 8 - x        （反着问的题，先把分数倒过来再算）
+    <pre class="card card--flat mt-4 scroll-x"><code class="code-plain t-xs">反向题：    x' = 8 - x        （反着问的题，先把分数倒过来再算）
 焦虑维度分：A = 焦虑 18 题的平均分     // 范围 1–7
 回避维度分：V = 回避 18 题的平均分
 
@@ -121,7 +121,7 @@
 
     <!-- ============ 伦理 ============ -->
     <h2 class="mt-7">五、我们给自己定的七条规矩</h2>
-    <ol class="stack stack--sm mt-4" style="padding-left:20px;list-style:decimal;font-size:15px">
+    <ol class="list list--num stack stack--sm mt-4">
       <li>不宣称诊断效力。任何页面都不出现"诊断""治疗""心理疾病"。</li>
       <li>不使用贬损词汇。不出现"缺陷""不正常""有病""冷漠"，也不用"你踩的坑"这类归罪式说法。</li>
       <li>必须给出可改变的出口。<strong>而且必须出现在免费区可见的位置，不能只藏在付费墙后面</strong>——文案里写了却要付费才看得到，等于没给。</li>
@@ -192,7 +192,7 @@
         <summary>什么时候我应该去找专业帮助，而不是用这个？</summary>
         <div class="acc__body">
           <p>下面这些情况下，专业帮助的价值会远高于自助：</p>
-          <ul style="padding-left:20px;list-style:disc;margin-top:8px">
+          <ul class="list mt-2">
             <li>关系反复破裂，且每次都遵循高度相似的模式</li>
             <li>长期处于焦虑、低落或失眠状态，影响工作与生活</li>
             <li>有过创伤经历，一进入亲密关系就会强烈应激</li>
@@ -239,7 +239,7 @@
 
   // 「切分点」与「样本均值」是两个不同的参照，分开列，避免被当成同一个数
   const crossRows = NORMS.crossCheck.map((c) => `
-    <tr${c.primary ? ' style="background:var(--yellow)"' : ''}>
+    <tr${c.primary ? ' class="is-primary"' : ''}>
       <td title="${c.label}">${c.short || c.label}</td>
       <td class="mono">${c.n == null ? '—' : c.n}</td>
       <td class="mono">${c.anxiety.toFixed(2)} ± ${c.anxietySd.toFixed(2)}</td>
@@ -251,7 +251,7 @@
     <div class="grid grid--2 mt-5" style="align-items:start">
       <div class="card">
         <p class="tag tag--blue">口径一 · 类型判定</p>
-        <table class="mt-4" style="font-size:14px"><tbody>
+        <table class="mt-4 t-sm"><tbody>
           <tr><td style="width:46%">切分点（焦虑）</td><td class="mono">${NORMS.cut.anxiety}</td></tr>
           <tr><td>切分点（回避）</td><td class="mono">${NORMS.cut.avoidance}</td></tr>
           <tr><td>依据</td><td>量表正中间的 4.0。国内文献给 ECR 分四种类型时，惯例就是取两个维度的平均分、以 4 分为界。</td></tr>
@@ -260,7 +260,7 @@
       </div>
       <div class="card">
         <p class="tag tag--mint">口径二 · 百分位</p>
-        <table class="mt-4" style="font-size:14px"><tbody>
+        <table class="mt-4 t-sm"><tbody>
           <tr><td style="width:46%">焦虑 均值 / 标准差</td><td class="mono">${NORMS.anxiety.mean} / ${NORMS.anxiety.sd}</td></tr>
           <tr><td>回避 均值 / 标准差</td><td class="mono">${NORMS.avoidance.mean} / ${NORMS.avoidance.sd}</td></tr>
           <tr><td>参照样本</td><td>${NORMS.referenceShort}</td></tr>
@@ -270,8 +270,8 @@
     </div>
 
     <h3 class="mt-7">同期中国样本交叉核对</h3>
-    <p class="muted mt-2" style="font-size:14px">列出多个样本而不是一个数字，是为了让你看到波动范围有多大。下表全部是 36 题 ECR/ECR-R 中文版、7 点计分的维度平均分。</p>
-    <table class="mt-4" style="font-size:14px">
+    <p class="muted mt-2 t-sm">列出多个样本而不是一个数字，是为了让你看到波动范围有多大。下表全部是 36 题 ECR/ECR-R 中文版、7 点计分的维度平均分。</p>
+    <table class="mt-4 t-sm">
       <thead><tr><th>来源</th><th>N</th><th>依恋焦虑</th><th>依恋回避</th><th>备注</th></tr></thead>
       <tbody>${crossRows}</tbody>
     </table>`;

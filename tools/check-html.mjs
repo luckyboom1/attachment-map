@@ -65,7 +65,18 @@ for (const file of FILES) {
   const dupes = ids.filter((v, i) => ids.indexOf(v) !== i);
   if (dupes.length) errs.push(`重复 id：${[...new Set(dupes)].join(', ')}`);
 
-  // 3. 必需要素
+  // 3. 同一标签内的重复属性。
+  // 浏览器对重复属性只取第一个，后面的静默忽略——写错了不报错，只是不生效。
+  // 这类问题最常由批量文本替换引入（把 style 换成 class 时忘了原标签已有 class）。
+  const dupAttr = [];
+  for (const tagMatch of src.matchAll(/<([a-zA-Z][\w-]*)((?:\s+[^<>]*?)?)\/?>/g)) {
+    const attrs = [...tagMatch[2].matchAll(/(^|\s)([a-zA-Z-][\w:-]*)\s*=/g)].map((m) => m[2].toLowerCase());
+    const dup = attrs.filter((v, i) => attrs.indexOf(v) !== i);
+    if (dup.length) dupAttr.push(`<${tagMatch[1]}> 重复 ${[...new Set(dup)].join(', ')}`);
+  }
+  if (dupAttr.length) errs.push(`重复属性：${dupAttr[0]}${dupAttr.length > 1 ? ` 等 ${dupAttr.length} 处` : ''}`);
+
+  // 4. 必需要素
   if (!/<main id="main"/.test(src)) errs.push('缺少 <main id="main">');
   if (!/lang="zh-CN"/.test(raw)) errs.push('缺少 lang="zh-CN"');
   if (!/name="viewport"/.test(src)) errs.push('缺少 viewport meta');

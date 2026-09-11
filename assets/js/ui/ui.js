@@ -55,21 +55,21 @@ export function richText(src) {
     const lines = block.split('\n').filter((l) => l.trim() !== '');
 
     if (lines.every((l) => /^\s*[-*]\s+/.test(l))) {
-      return `<ul style="margin:0;padding-left:20px;list-style:disc">${
+      return `<ul class="list--inline">${
         lines.map((l) => `<li>${inline(l.replace(/^\s*[-*]\s+/, ''))}</li>`).join('')
       }</ul>`;
     }
     if (lines.every((l) => /^\s*\d+\.\s+/.test(l))) {
-      return `<ol style="margin:0;padding-left:20px;list-style:decimal">${
+      return `<ol class="list--inline list--num">${
         lines.map((l) => `<li>${inline(l.replace(/^\s*\d+\.\s+/, ''))}</li>`).join('')
       }</ol>`;
     }
     if (lines.every((l) => /^\s*&gt;\s?/.test(l))) {
-      return `<blockquote style="border-left:6px solid var(--line);padding:4px 0 4px 14px;margin:0;color:var(--text-2)">${
+      return `<blockquote class="quote">${
         lines.map((l) => inline(l.replace(/^\s*&gt;\s?/, ''))).join('<br>')
       }</blockquote>`;
     }
-    return `<p style="margin:0">${lines.map(inline).join('<br>')}</p>`;
+    return `<p class="t-sm">${lines.map(inline).join('<br>')}</p>`;
   }).join('');
 }
 
