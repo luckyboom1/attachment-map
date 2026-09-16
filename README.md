@@ -1,5 +1,9 @@
 # 依恋地图 · Attachment Map
 
+> ⚠️ **维护状态（2026-09 起）**：本仓库是「依恋地图」的独立部署版，继续服务于 attachment-map.pages.dev 与 GitHub Pages。
+> **活跃开发已转移到平台版** `xiaoceyixia` 仓库的 `apps/attachment-map/`（xiaoceyixia.cn，含中英双语、平台埋点）。
+> 修 bug：先改平台版，再按需回填本仓库；新功能不再回填。
+
 基于成人依恋理论的双维度测试站。**零依赖、零构建步骤、零后端**——把目录拖到任何静态托管上就能跑。
 
 **线上地址**
